@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>全托管移除页面清库审核功能 - Element 风格原型</title>
+  <style>
+    :root {
+      --el-color-primary: #409eff;
+      --el-color-primary-light-9: #ecf5ff;
+      --el-color-success: #67c23a;
+      --el-color-warning: #e6a23c;
+      --el-color-danger: #f56c6c;
+      --el-color-info: #909399;
+      --el-text-color-primary: #303133;
+      --el-text-color-regular: #606266;
+      --el-text-color-secondary: #909399;
+      --el-border-color: #dcdfe6;
+      --el-border-color-light: #ebeef5;
+      --el-fill-color-light: #f5f7fa;
+      --el-fill-color-blank: #ffffff;
+      --el-bg-color-page: #f2f3f5;
+      --el-box-shadow-light: 0 2px 12px rgba(0, 0, 0, 0.08);
+      --el-border-radius-base: 4px;
+      --el-transition: 0.2s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--el-bg-color-page);
+      color: var(--el-text-color-primary);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--el-border-color-light);
+    }
+
+    .topbar-inner {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .crumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #c0c4cc;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .title-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--el-color-primary);
+      background: var(--el-color-primary-light-9);
+      border: 1px solid #d9ecff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 8px 24px 24px;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .banner {
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid #b3d8ff;
+      border-radius: var(--el-border-radius-base);
+      background: #edf7ff;
+      color: #4e5969;
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .banner strong {
+      color: var(--el-color-primary);
+    }
+
+    .panel {
+      background: var(--el-fill-color-blank);
+      border: 1px solid var(--el-border-color-light);
+      border-radius: 8px;
+      box-shadow: var(--el-box-shadow-light);
+      overflow: hidden;
+    }
+
+    .panel + .panel {
+      margin-top: 16px;
+    }
+
+    .list-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-form {
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 8px 12px;
+    }
+
+    .form-item {
+      width: 168px;
+      min-width: 0;
+    }
+
+    .form-item.store-filter-item {
+      position: relative;
+    }
+
+    .form-item.owner-filter-item {
+      position: relative;
+    }
+
+    .form-item.actions {
+      width: auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .batch-action {
+      margin-left: auto;
+    }
+
+    .form-item.time-range-item {
+      width: 360px;
+    }
+
+    .el-input,
+    .el-select {
+      width: 100%;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--el-border-color);
+      border-radius: var(--el-border-radius-base);
+      background: #fff;
+      color: var(--el-text-color-primary);
+      font-size: 12px;
+      transition: border-color var(--el-transition), box-shadow var(--el-transition);
+      outline: none;
+    }
+
+    .filter-form .el-input,
+    .filter-form .el-select {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .time-range-group {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .time-range-group .el-select {
+      width: 116px;
+      flex: 0 0 116px;
+      border-top-left-radius: var(--el-border-radius-base);
+      border-bottom-left-radius: var(--el-border-radius-base);
+    }
+
+    .time-range-group .el-input + .el-input,
+    .time-range-group .el-select + .el-input,
+    .time-range-group .el-input + .el-select {
+      margin-left: -1px;
+    }
+
+    .time-range-group .el-input {
+      min-width: 0;
+    }
+
+    .time-range-fields {
+      flex: 1;
+      min-width: 0;
+      height: 32px;
+      margin-left: -1px;
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--el-border-color);
+      border-top-right-radius: var(--el-border-radius-base);
+      border-bottom-right-radius: var(--el-border-radius-base);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .time-range-fields:focus-within {
+      border-color: var(--el-color-primary);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.16);
+      position: relative;
+      z-index: 1;
+    }
+
+    .time-range-fields .el-input {
+      flex: 1;
+      height: 100%;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      padding: 0 10px;
+    }
+
+    .time-range-fields .el-input:focus {
+      border: none;
+      box-shadow: none;
+    }
+
+    .time-range-separator {
+      flex: 0 0 24px;
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--el-text-color-secondary);
+      font-size: 12px;
+    }
+
+    .store-filter,
+    .tree-filter {
+      position: relative;
+      width: 100%;
+    }
+
+    .store-filter-trigger,
+    .tree-filter-trigger {
+      width: 100%;
+      height: 32px;
+      padding: 0 30px 0 10px;
+      border: 1px solid var(--el-border-color);
+      border-radius: var(--el-border-radius-base);
+      background: #fff;
+      color: var(--el-text-color-primary);
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .store-filter-trigger::after,
+    .tree-filter-trigger::after {
+      content: "▾";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--el-text-color-secondary);
+      font-size: 12px;
+      transition: transform var(--el-transition);
+    }
+
+    .store-filter.open .store-filter-trigger,
+    .tree-filter.open .tree-filter-trigger {
+      border-color: var(--el-color-primary);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.16);
+    }
+
+    .store-filter.open .store-filter-trigger::after,
+    .tree-filter.open .tree-filter-trigger::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .store-dropdown,
+    .tree-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 30;
+      width: 240px;
+      display: none;
+      padding: 8px;
+      border: 1px solid var(--el-border-color-light);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .store-filter.open .store-dropdown,
+    .tree-filter.open .tree-dropdown {
+      display: block;
+    }
+
+    .store-option,
+    .store-group-toggle,
+    .tree-option,
+    .tree-group-toggle {
+      width: 100%;
+      min-height: 32px;
+      padding: 0 10px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--el-text-color-regular);
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .store-option:hover,
+    .store-group-toggle:hover,
+    .tree-option:hover,
+    .tree-group-toggle:hover {
+      background: #f5f7fa;
+    }
+
+    .store-option.active,
+    .tree-option.active {
+      background: #ecf5ff;
+      color: var(--el-color-primary);
+      font-weight: 600;
+    }
+
+    .store-group + .store-group {
+      margin-top: 4px;
+    }
+
+    .store-group-toggle,
+    .tree-group-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--el-text-color-primary);
+      font-weight: 600;
+    }
+
+    .store-group-caret,
+    .tree-group-caret {
+      color: var(--el-text-color-secondary);
+      transition: transform var(--el-transition);
+    }
+
+    .store-group.collapsed .store-group-caret,
+    .tree-group.collapsed .tree-group-caret {
+      transform: rotate(-90deg);
+    }
+
+    .store-group-options,
+    .tree-group-options {
+      margin-top: 4px;
+      padding-left: 8px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .store-group.collapsed .store-group-options,
+    .tree-group.collapsed .tree-group-options {
+      display: none;
+    }
+
+    .el-input:focus,
+    .el-select:focus {
+      border-color: var(--el-color-primary);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.16);
+    }
+
+    .el-button {
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid var(--el-border-color);
+      border-radius: var(--el-border-radius-base);
+      background: #fff;
+      color: var(--el-text-color-regular);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all var(--el-transition);
+    }
+
+    .el-button:hover {
+      color: var(--el-color-primary);
+      border-color: #c6e2ff;
+      background: #ecf5ff;
+    }
+
+    .el-button.primary {
+      color: #fff;
+      background: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+    }
+
+    .el-button.primary:hover {
+      background: #66b1ff;
+      border-color: #66b1ff;
+      color: #fff;
+    }
+
+    .el-button.text {
+      height: auto;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--el-color-primary);
+    }
+
+    .el-button.text.danger {
+      color: var(--el-text-color-primary);
+    }
+
+    .metrics {
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      border-bottom: 1px solid var(--el-border-color-light);
+      background: #fafcff;
+    }
+
+    .metric-card {
+      padding: 16px;
+      border: 1px solid var(--el-border-color-light);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .metric-value {
+      margin-top: 10px;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .metric-foot {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .table-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      max-height: none;
+    }
+
+    .table-footer {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--el-border-color-light);
+      background: #fff;
+      flex-wrap: wrap;
+    }
+
+    .pagination-summary {
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .page-size-select {
+      width: auto;
+      min-width: 104px;
+      height: 32px;
+      padding: 0 28px 0 10px;
+      border: 1px solid var(--el-border-color);
+      border-radius: var(--el-border-radius-base);
+      background: #fff;
+      color: var(--el-text-color-primary);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .page-indicator {
+      min-width: 72px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--el-text-color-regular);
+    }
+
+    table {
+      width: 100%;
+      min-width: 2520px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f5f7fa;
+      color: var(--el-text-color-regular);
+      font-weight: 600;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--el-border-color-light);
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    thead th {
+      padding-top: 13px;
+      padding-bottom: 13px;
+    }
+
+    tbody tr:hover td {
+      background: #f8fbff;
+    }
+
+    thead th:last-child {
+      right: 0;
+      z-index: 3;
+      min-width: 120px;
+      box-shadow: -8px 0 12px rgba(0, 0, 0, 0.04);
+    }
+
+    tbody td:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 2;
+      min-width: 120px;
+      background: #fff;
+      box-shadow: -8px 0 12px rgba(0, 0, 0, 0.04);
+    }
+
+    tbody tr:hover td:last-child {
+      background: #f8fbff;
+    }
+
+    .table-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      border: 1px solid #dcdfe6;
+      background: linear-gradient(135deg, #d9ecff 0%, #f4faff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--el-color-primary);
+      font-size: 11px;
+    }
+
+    .name-cell {
+      max-width: 260px;
+      white-space: normal;
+      line-height: 1.6;
+    }
+
+    .listing-cell {
+      min-width: 300px;
+      max-width: 340px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .listing-title {
+      margin-bottom: 6px;
+      font-size: 13px;
+      line-height: 1.5;
+      max-height: 3em;
+      overflow: hidden;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+    }
+
+    .listing-meta {
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .age-cell {
+      min-width: 190px;
+      max-width: 220px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .age-grid {
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .inventory-cell {
+      min-width: 150px;
+      max-width: 170px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .inventory-grid {
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .sales-cell {
+      min-width: 150px;
+      max-width: 170px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .sales-grid,
+    .profit-grid {
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .profit-cell {
+      min-width: 170px;
+      max-width: 190px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .procurement-cell,
+    .actionfee-cell,
+    .advice-cell {
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .procurement-cell {
+      min-width: 180px;
+      max-width: 210px;
+    }
+
+    .actionfee-cell {
+      min-width: 170px;
+      max-width: 190px;
+    }
+
+    .advice-cell {
+      min-width: 190px;
+      max-width: 220px;
+    }
+
+    .procurement-grid,
+    .actionfee-grid,
+    .advice-grid {
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .time-cell {
+      min-width: 180px;
+      max-width: 200px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .time-grid {
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .select-cell {
+      width: 48px;
+      min-width: 48px;
+      text-align: center;
+    }
+
+    .row-checkbox,
+    .head-checkbox {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--el-color-primary);
+      cursor: pointer;
+    }
+
+    .row-checkbox:disabled,
+    .head-checkbox:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    .shop-cell {
+      min-width: 210px;
+      max-width: 240px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .shop-meta {
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .meta-label {
+      color: var(--el-text-color-secondary);
+      font-weight: 400;
+    }
+
+    .meta-value {
+      color: var(--el-text-color-primary);
+      font-weight: 400;
+    }
+
+    .shop-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .shop-status.normal {
+      color: var(--el-color-success);
+      background: #f0f9eb;
+      border-color: #d9f0cb;
+    }
+
+    .shop-status.abnormal {
+      color: var(--el-color-danger);
+      background: #fef0f0;
+      border-color: #fbc4c4;
+    }
+
+    .ellipsis {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      line-clamp: 2;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .status-tag,
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      height: 24px;
+      border-radius: 12px;
+      font-size: 12px;
+      border: 1px solid transparent;
+    }
+
+    .status-tag.pending,
+    .mini-tag.warning {
+      color: var(--el-color-warning);
+      background: #fdf6ec;
+      border-color: #faecd8;
+    }
+
+    .status-tag.success,
+    .mini-tag.success {
+      color: var(--el-color-success);
+      background: #f0f9eb;
+      border-color: #e1f3d8;
+    }
+
+    .status-tag.info,
+    .mini-tag.info {
+      color: var(--el-color-info);
+      background: #f4f4f5;
+      border-color: #e9e9eb;
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dialog-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 50;
+    }
+
+    .dialog-mask.show {
+      display: flex;
+    }
+
+    .dialog {
+      width: 620px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .dialog.wide {
+      width: min(1440px, calc(100vw - 32px));
+    }
+
+    .dialog-header,
+    .drawer-header {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--el-border-color-light);
+    }
+
+    .dialog-title,
+    .drawer-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      border: none;
+      background: transparent;
+      color: #909399;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .dialog-body {
+      padding: 20px;
+    }
+
+    .summary-box {
+      margin-bottom: 18px;
+      padding: 16px;
+      border-radius: 6px;
+      background: #f5f7fa;
+      border: 1px solid var(--el-border-color-light);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
+      font-size: 13px;
+      color: var(--el-text-color-regular);
+    }
+
+    .summary-grid strong {
+      color: var(--el-text-color-primary);
+      font-weight: 600;
+    }
+
+    .section-title {
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+    }
+
+    .dialog-form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .dialog-item label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--el-text-color-regular);
+    }
+
+    .required {
+      color: var(--el-color-danger);
+      margin-right: 4px;
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .error-message {
+      display: none;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--el-color-danger);
+    }
+
+    .dialog-item.error .el-select {
+      border-color: var(--el-color-danger);
+    }
+
+    .dialog-item.error .error-message {
+      display: block;
+    }
+
+    .dialog-foot {
+      padding: 16px 20px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      border-top: 1px solid var(--el-border-color-light);
+    }
+
+    .batch-summary {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 6px;
+      border: 1px solid #d9ecff;
+      background: #f4faff;
+      font-size: 13px;
+      color: var(--el-text-color-primary);
+      line-height: 1.7;
+    }
+
+    .batch-table-wrap {
+      max-height: 62vh;
+      overflow: auto;
+      border: 1px solid var(--el-border-color-light);
+      border-radius: 8px;
+    }
+
+    .batch-table {
+      width: 100%;
+      min-width: 1320px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .batch-table th,
+    .batch-table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--el-border-color-light);
+      text-align: left;
+      vertical-align: middle;
+      white-space: normal;
+    }
+
+    .batch-table th {
+      position: sticky;
+      top: 0;
+      background: #f5f7fa;
+      z-index: 1;
+      color: var(--el-text-color-regular);
+      font-weight: 600;
+    }
+
+    .batch-select {
+      width: 100%;
+      min-width: 150px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--el-border-color);
+      border-radius: var(--el-border-radius-base);
+      background: #fff;
+      color: var(--el-text-color-primary);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .batch-input {
+      width: 100%;
+      min-width: 120px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--el-border-color);
+      border-radius: var(--el-border-radius-base);
+      background: #fff;
+      color: var(--el-text-color-primary);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .batch-title {
+      min-width: 260px;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    .batch-empty {
+      padding: 32px 16px;
+      text-align: center;
+      color: var(--el-text-color-secondary);
+      font-size: 13px;
+    }
+
+    .drawer-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 60;
+    }
+
+    .drawer-mask.show {
+      display: block;
+    }
+
+    .drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 560px;
+      max-width: calc(100vw - 24px);
+      height: 100%;
+      background: #fff;
+      box-shadow: -12px 0 32px rgba(0, 0, 0, 0.14);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer-body {
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .log-overview {
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 6px;
+      border: 1px solid #d9ecff;
+      background: #f4faff;
+      color: var(--el-text-color-primary);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 14px 16px 14px 24px;
+      border: 1px solid var(--el-border-color-light);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 20px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--el-color-primary);
+    }
+
+    .timeline-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+    }
+
+    .timeline-meta {
+      color: var(--el-text-color-primary);
+    }
+
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+      font-size: 13px;
+      color: var(--el-text-color-primary);
+    }
+
+    .timeline-grid span {
+      color: var(--el-text-color-primary);
+    }
+
+    .toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      min-width: 220px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      background: rgba(103, 194, 58, 0.96);
+      color: #fff;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--el-transition), transform var(--el-transition);
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .empty {
+      padding: 48px 12px;
+      text-align: center;
+      color: var(--el-text-color-secondary);
+    }
+
+    @media (max-width: 1280px) {
+      .filter-form,
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar-inner,
+      .container {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .filter-form,
+      .metrics,
+      .summary-grid,
+      .timeline-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table-footer {
+        align-items: flex-start;
+      }
+
+      .pagination {
+        justify-content: flex-start;
+      }
+
+      .filter-form .el-input,
+      .filter-form .el-select {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .form-item.actions {
+        width: 100%;
+      }
+
+      .drawer {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main class="container">
+      <section class="panel">
+        <div class="filter-form">
+          <div class="form-item store-filter-item">
+            <div class="store-filter" id="storeFilter">
+              <button class="store-filter-trigger" id="storeFilterTrigger" type="button">店铺</button>
+              <div class="store-dropdown" id="storeDropdown">
+                <button class="store-option active" data-value="" type="button">全部店铺</button>
+                <div class="store-group" data-site="US">
+                  <button class="store-group-toggle" data-site="US" type="button">
+                    <span>US</span>
+                    <span class="store-group-caret">▾</span>
+                  </button>
+                  <div class="store-group-options">
+                    <button class="store-option" data-value="US-Amazon店" type="button">US - Amazon店</button>
+                  </div>
+                </div>
+                <div class="store-group" data-site="DE">
+                  <button class="store-group-toggle" data-site="DE" type="button">
+                    <span>DE</span>
+                    <span class="store-group-caret">▾</span>
+                  </button>
+                  <div class="store-group-options">
+                    <button class="store-option" data-value="DE-Amazon店" type="button">DE - Amazon店</button>
+                  </div>
+                </div>
+                <div class="store-group" data-site="UK">
+                  <button class="store-group-toggle" data-site="UK" type="button">
+                    <span>UK</span>
+                    <span class="store-group-caret">▾</span>
+                  </button>
+                  <div class="store-group-options">
+                    <button class="store-option" data-value="UK-Amazon店" type="button">UK - Amazon店</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-item">
+            <select class="el-select" id="statusFilter">
+              <option value="">全部状态</option>
+              <option value="待提交">待提交</option>
+              <option value="已提交">已提交</option>
+            </select>
+          </div>
+          <div class="form-item owner-filter-item">
+            <div class="tree-filter" id="ownerFilter">
+              <button class="tree-filter-trigger" id="ownerFilterTrigger" type="button">销售人员</button>
+              <div class="tree-dropdown" id="ownerDropdown">
+                <button class="tree-option active" data-value="" type="button">全部销售人员</button>
+                <div class="tree-group" data-group="家居部">
+                  <button class="tree-group-toggle" data-group="家居部" type="button">
+                    <span>家居部</span>
+                    <span class="tree-group-caret">▾</span>
+                  </button>
+                  <div class="tree-group-options">
+                    <button class="tree-option" data-value="陈晓雨" type="button">陈晓雨</button>
+                    <button class="tree-option" data-value="李青" type="button">李青</button>
+                  </div>
+                </div>
+                <div class="tree-group" data-group="个护部">
+                  <button class="tree-group-toggle" data-group="个护部" type="button">
+                    <span>个护部</span>
+                    <span class="tree-group-caret">▾</span>
+                  </button>
+                  <div class="tree-group-options">
+                    <button class="tree-option" data-value="张敏" type="button">张敏</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-item">
+            <input class="el-input" id="keywordFilter" placeholder="输入MSKU搜索" />
+          </div>
+          <div class="form-item time-range-item">
+            <div class="time-range-group">
+              <select class="el-select" id="timeTypeFilter">
+                <option value="">时间类型</option>
+                <option value="addTime">添加时间</option>
+                <option value="submitTime">提交时间</option>
+              </select>
+              <div class="time-range-fields">
+                <input class="el-input" id="timeStartDateFilter" type="date" />
+                <span class="time-range-separator">~</span>
+                <input class="el-input" id="timeEndDateFilter" type="date" />
+              </div>
+            </div>
+          </div>
+          <div class="form-item actions">
+            <button class="el-button" id="searchBtn">查询</button>
+            <button class="el-button" id="resetBtn">重置</button>
+          </div>
+          <div class="form-item actions batch-action">
+            <button class="el-button primary" id="batchSubmitBtn">创建移除订单</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel list-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="select-cell"><input class="head-checkbox" id="selectAllRows" type="checkbox" aria-label="全选" /></th>
+                <th>listing信息</th>
+                <th>店铺/人员</th>
+                <th>是否可售</th>
+                <th>提交状态</th>
+                <th>库存</th>
+                <th>库龄库存</th>
+                <th>推送数量</th>
+                <th>销量</th>
+                <th>利润</th>
+                <th>星级</th>
+                <th>当前售价</th>
+                <th>采购（￥）</th>
+                <th>操作费</th>
+                <th>移除建议</th>
+                <th>时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="pagination-summary" id="paginationSummary">第 0-0 条，共 0 条</div>
+          <div class="pagination">
+            <select class="page-size-select" id="pageSizeSelect">
+              <option value="20">20 / 页</option>
+              <option value="50">50 / 页</option>
+              <option value="100">100 / 页</option>
+            </select>
+            <button class="el-button" id="prevPageBtn">上一页</button>
+            <div class="page-indicator" id="pageIndicator">1 / 1</div>
+            <button class="el-button" id="nextPageBtn">下一页</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="dialog-mask" id="auditMask">
+    <div class="dialog">
+      <div class="dialog-header">
+        <div class="dialog-title">创建移除订单</div>
+        <button class="close-btn" id="closeDialogBtn" aria-label="关闭">×</button>
+      </div>
+      <div class="dialog-body">
+        <div class="summary-box">
+          <div class="section-title">订单信息</div>
+          <div class="summary-grid">
+            <div>店铺：<strong id="auditStore">-</strong></div>
+            <div>MSKU：<strong id="auditMsku">-</strong></div>
+            <div>FNSKU：<strong id="auditFnsku">-</strong></div>
+            <div>系统SKU：<strong id="auditSystemSku">-</strong></div>
+            <div>当前状态：<strong id="auditStatus">-</strong></div>
+            <div>可售数：<strong id="auditSellable">-</strong></div>
+            <div>不可售数：<strong id="auditUnsellable">-</strong></div>
+          </div>
+        </div>
+
+        <div class="dialog-form">
+          <div class="section-title" style="margin-bottom: -4px;">可调整信息</div>
+          <div class="dialog-item" id="methodItem">
+            <label><span class="required">*</span>审核移除方式</label>
+            <select class="el-select" id="removeMethod">
+              <option value="">请选择审核移除方式</option>
+              <option value="Return">Return</option>
+              <option value="Disposal">Disposal</option>
+              <option value="Liquidations">Liquidations</option>
+            </select>
+            <div class="error-message">请选择审核移除方式</div>
+          </div>
+
+          <div class="dialog-item" id="reasonItem">
+            <label><span class="required">*</span>移除/销毁原因</label>
+            <select class="el-select" id="removeReason">
+              <option value="">请选择移除/销毁原因</option>
+              <option value="呆滞产品">呆滞产品</option>
+              <option value="过季产品">过季产品</option>
+              <option value="禁售产品">禁售产品</option>
+              <option value="仿牌产品">仿牌产品</option>
+              <option value="认证类问题">认证类问题</option>
+              <option value="已下架产品">已下架产品</option>
+              <option value="质量问题">质量问题</option>
+              <option value="listing信息被篡改">listing信息被篡改</option>
+              <option value="仓库发错货">仓库发错货</option>
+              <option value="店铺被暂停">店铺被暂停</option>
+              <option value="店铺库容受限">店铺库容受限</option>
+            </select>
+            <div class="hint">提交成功后写入当前记录日志，列表不直接展示该字段。</div>
+            <div class="error-message">请选择移除/销毁原因</div>
+          </div>
+          <div class="dialog-item">
+            <label>成本分摊</label>
+            <input class="el-input" id="costShareInput" placeholder="请输入成本分摊，如 32%" />
+          </div>
+        </div>
+      </div>
+      <div class="dialog-foot">
+        <button class="el-button" id="cancelDialogBtn">取消</button>
+        <button class="el-button primary" id="submitDialogBtn">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-mask" id="batchMask">
+    <div class="dialog wide">
+      <div class="dialog-header">
+        <div class="dialog-title">批量创建移除订单</div>
+        <button class="close-btn" id="closeBatchBtn" aria-label="关闭">×</button>
+      </div>
+      <div class="dialog-body">
+        <div class="batch-summary" id="batchSummary">已选择 0 条数据，可统一设置后批量创建移除订单。</div>
+        <div class="batch-table-wrap">
+          <table class="batch-table">
+            <thead>
+              <tr>
+                <th>店铺</th>
+                <th>MSKU</th>
+                <th>FNSKU</th>
+                <th>SKU</th>
+                <th>listing标题</th>
+                <th>当前提交状态</th>
+                <th>可售数</th>
+                <th>不可售数</th>
+                <th>审核移除方式</th>
+                <th>移除/销毁原因</th>
+                <th>成本分摊</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="batchTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="dialog-foot">
+        <button class="el-button" id="cancelBatchBtn">取消</button>
+        <button class="el-button primary" id="confirmBatchBtn">创建移除订单</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-mask" id="logDrawerMask">
+    <aside class="drawer">
+      <div class="drawer-header">
+        <div class="drawer-title">清库日志</div>
+        <button class="close-btn" id="closeDrawerBtn" aria-label="关闭">×</button>
+      </div>
+      <div class="drawer-body">
+        <div class="log-overview" id="logOverview">请选择一条记录查看清库审核历史。</div>
+        <div class="timeline" id="logTimeline"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast">提交成功</div>
+
+  <script>
+    var rows = [
+      {
+        id: "rec-001",
+        channel: "Amazon",
+        storeName: "US-Amazon店",
+        site: "US",
+        accountStatus: "正常",
+        owner: "陈晓雨",
+        systemSku: "SKU-100245",
+        fnsku: "X001-FTY-88",
+        msku: "MSKU-US-001",
+        sellable: 126,
+        unsellable: 14,
+        pushQty: 20,
+        allocatorName: "王宁",
+        allocatorNo: "FH1023",
+        ratio: "32%",
+        productName: "Pet Hair Remover Roller for Sofa, Carpet and Furniture",
+        salable: "是",
+        refund30: "2.4%",
+        rating: "4.5",
+        price: "$19.99",
+        age365: 18,
+        age271: 24,
+        age181: 36,
+        age91: 42,
+        age0: 20,
+        buyPrice: "35.00",
+        buyTotal: "700.00",
+        sale14: 53,
+        profit14: "16.8%",
+        sale30: 122,
+        profit30: "12.5%",
+        transferFee: "120.00",
+        disposalFee: "96.00",
+        liquidationFee: "40.00",
+        status: "待提交",
+        addTime: "2026-04-22 09:30:11",
+        submitTime: "-",
+        removeMethod: "-",
+        removeReason: "-"
+      },
+      {
+        id: "rec-002",
+        channel: "Amazon",
+        storeName: "DE-Amazon店",
+        site: "DE",
+        accountStatus: "正常",
+        owner: "李青",
+        systemSku: "SKU-102922",
+        fnsku: "X002-KLP-31",
+        msku: "MSKU-DE-014",
+        sellable: 58,
+        unsellable: 6,
+        pushQty: 10,
+        allocatorName: "赵可",
+        allocatorNo: "FH1098",
+        ratio: "25%",
+        productName: "Magnetic Spice Rack Organizer for Refrigerator, 4 Pack",
+        salable: "是",
+        refund30: "1.3%",
+        rating: "4.7",
+        price: "EUR 25.99",
+        age365: 9,
+        age271: 15,
+        age181: 21,
+        age91: 14,
+        age0: 5,
+        buyPrice: "41.00",
+        buyTotal: "410.00",
+        sale14: 29,
+        profit14: "19.4%",
+        sale30: 64,
+        profit30: "17.1%",
+        transferFee: "68.00",
+        disposalFee: "52.00",
+        liquidationFee: "22.00",
+        status: "已提交",
+        addTime: "2026-04-22 09:42:03",
+        submitTime: "2026-04-22 10:18:25",
+        removeMethod: "Disposal",
+        removeReason: "呆滞产品"
+      },
+      {
+        id: "rec-003",
+        channel: "Amazon",
+        storeName: "UK-Amazon店",
+        site: "UK",
+        accountStatus: "异常",
+        owner: "张敏",
+        systemSku: "SKU-104611",
+        fnsku: "X003-ULM-20",
+        msku: "MSKU-UK-106",
+        sellable: 12,
+        unsellable: 48,
+        pushQty: 15,
+        allocatorName: "何川",
+        allocatorNo: "FH1186",
+        ratio: "45%",
+        productName: "Portable Heated Eye Mask for Dry Eyes and Daily Sleep Care",
+        salable: "否",
+        refund30: "6.8%",
+        rating: "3.9",
+        price: "GBP 16.99",
+        age365: 30,
+        age271: 18,
+        age181: 8,
+        age91: 3,
+        age0: 1,
+        buyPrice: "28.00",
+        buyTotal: "420.00",
+        sale14: 3,
+        profit14: "-4.2%",
+        sale30: 8,
+        profit30: "1.3%",
+        transferFee: "74.00",
+        disposalFee: "88.00",
+        liquidationFee: "20.00",
+        status: "待提交",
+        addTime: "2026-04-22 09:58:44",
+        submitTime: "-",
+        removeMethod: "-",
+        removeReason: "-"
+      }
+    ];
+
+    var logs = {
+      "rec-001": [
+        {
+          time: "2026-04-22 09:30:11",
+          user: "系统",
+          action: "进入待清库审核",
+          method: "-",
+          reason: "-",
+          result: "待人工处理"
+        }
+      ],
+      "rec-002": [
+        {
+          time: "2026-04-22 10:18:25",
+          user: "王雪",
+          action: "提交清库",
+          method: "Disposal",
+          reason: "呆滞产品",
+          result: "提交成功"
+        },
+        {
+          time: "2026-04-22 09:42:03",
+          user: "系统",
+          action: "进入待清库审核",
+          method: "-",
+          reason: "-",
+          result: "待人工处理"
+        }
+      ],
+      "rec-003": [
+        {
+          time: "2026-04-22 11:06:19",
+          user: "系统",
+          action: "提交结果回写",
+          method: "Return",
+          reason: "店铺库容受限",
+          result: "待复核"
+        },
+        {
+          time: "2026-04-22 09:58:44",
+          user: "系统",
+          action: "进入待清库审核",
+          method: "-",
+          reason: "-",
+          result: "待人工处理"
+        }
+      ]
+    };
+
+    var state = {
+      currentRowId: null,
+      filteredRows: rows.slice(),
+      selectedRowIds: {},
+      currentPage: 1,
+      pageSize: 20,
+      selectedStore: "",
+      selectedOwner: "",
+      batchDrafts: {},
+      storeGroupsCollapsed: {
+        US: false,
+        DE: false,
+        UK: false
+      },
+      ownerGroupsCollapsed: {
+        "家居部": false,
+        "个护部": false
+      }
+    };
+
+    var auditMask = document.getElementById("auditMask");
+    var batchMask = document.getElementById("batchMask");
+    var logDrawerMask = document.getElementById("logDrawerMask");
+    var tableBody = document.getElementById("tableBody");
+    var batchTableBody = document.getElementById("batchTableBody");
+    var batchSummary = document.getElementById("batchSummary");
+    var logTimeline = document.getElementById("logTimeline");
+    var logOverview = document.getElementById("logOverview");
+    var removeMethod = document.getElementById("removeMethod");
+    var removeReason = document.getElementById("removeReason");
+    var costShareInput = document.getElementById("costShareInput");
+    var methodItem = document.getElementById("methodItem");
+    var reasonItem = document.getElementById("reasonItem");
+    var toast = document.getElementById("toast");
+    var storeFilter = document.getElementById("storeFilter");
+    var storeFilterTrigger = document.getElementById("storeFilterTrigger");
+    var storeDropdown = document.getElementById("storeDropdown");
+    var ownerFilter = document.getElementById("ownerFilter");
+    var ownerFilterTrigger = document.getElementById("ownerFilterTrigger");
+    var ownerDropdown = document.getElementById("ownerDropdown");
+    var pageSizeSelect = document.getElementById("pageSizeSelect");
+    var prevPageBtn = document.getElementById("prevPageBtn");
+    var nextPageBtn = document.getElementById("nextPageBtn");
+    var pageIndicator = document.getElementById("pageIndicator");
+    var paginationSummary = document.getElementById("paginationSummary");
+
+    function getRowById(id) {
+      return rows.find(function (item) {
+        return item.id === id;
+      });
+    }
+
+    function getStatusClass(status) {
+      if (status === "已提交") return "success";
+      if (status === "待复核") return "info";
+      return "pending";
+    }
+
+    function getSelectedRows() {
+      return rows.filter(function (row) {
+        return !!state.selectedRowIds[row.id];
+      });
+    }
+
+    function getCreatableRows(list) {
+      return list.filter(function (row) {
+        return row.status !== "已提交";
+      });
+    }
+
+    function formatDateOnly(value) {
+      if (!value || value === "-") return "-";
+      return String(value).split(" ")[0];
+    }
+
+    function getSiteCurrencySymbol(site) {
+      if (site === "US") return "$";
+      if (site === "DE") return "€";
+      if (site === "UK") return "£";
+      return "¥";
+    }
+
+    function updateStoreTrigger() {
+      storeFilterTrigger.textContent = state.selectedStore || "店铺";
+    }
+
+    function setStoreFilterOpen(open) {
+      if (open) {
+        storeFilter.classList.add("open");
+      } else {
+        storeFilter.classList.remove("open");
+      }
+    }
+
+    function selectStore(value) {
+      state.selectedStore = value;
+      updateStoreTrigger();
+      Array.prototype.forEach.call(storeDropdown.querySelectorAll(".store-option"), function (option) {
+        option.classList.toggle("active", option.getAttribute("data-value") === value);
+      });
+      setStoreFilterOpen(false);
+    }
+
+    function toggleStoreGroup(site) {
+      state.storeGroupsCollapsed[site] = !state.storeGroupsCollapsed[site];
+      var group = storeDropdown.querySelector(".store-group[data-site='" + site + "']");
+      if (group) {
+        group.classList.toggle("collapsed", state.storeGroupsCollapsed[site]);
+      }
+    }
+
+    function updateOwnerTrigger() {
+      ownerFilterTrigger.textContent = state.selectedOwner || "销售人员";
+    }
+
+    function setOwnerFilterOpen(open) {
+      if (open) {
+        ownerFilter.classList.add("open");
+      } else {
+        ownerFilter.classList.remove("open");
+      }
+    }
+
+    function selectOwner(value) {
+      state.selectedOwner = value;
+      updateOwnerTrigger();
+      Array.prototype.forEach.call(ownerDropdown.querySelectorAll(".tree-option"), function (option) {
+        option.classList.toggle("active", option.getAttribute("data-value") === value);
+      });
+      setOwnerFilterOpen(false);
+    }
+
+    function toggleOwnerGroup(groupName) {
+      state.ownerGroupsCollapsed[groupName] = !state.ownerGroupsCollapsed[groupName];
+      var group = ownerDropdown.querySelector(".tree-group[data-group='" + groupName + "']");
+      if (group) {
+        group.classList.toggle("collapsed", state.ownerGroupsCollapsed[groupName]);
+      }
+    }
+
+    function metricValues() {
+      return;
+    }
+
+    function getTotalPages() {
+      return Math.max(1, Math.ceil(state.filteredRows.length / state.pageSize));
+    }
+
+    function getPagedRows() {
+      var start = (state.currentPage - 1) * state.pageSize;
+      return state.filteredRows.slice(start, start + state.pageSize);
+    }
+
+    function ensureValidPage() {
+      var totalPages = getTotalPages();
+      if (state.currentPage > totalPages) {
+        state.currentPage = totalPages;
+      }
+      if (state.currentPage < 1) {
+        state.currentPage = 1;
+      }
+    }
+
+    function syncSelectAllCheckbox() {
+      var selectAll = document.getElementById("selectAllRows");
+      if (!selectAll) return;
+
+      var filteredIds = getCreatableRows(getPagedRows()).map(function (item) {
+        return item.id;
+      });
+      var selectedCount = filteredIds.filter(function (id) {
+        return !!state.selectedRowIds[id];
+      }).length;
+
+      selectAll.disabled = filteredIds.length === 0;
+      selectAll.checked = filteredIds.length > 0 && selectedCount === filteredIds.length;
+      selectAll.indeterminate = selectedCount > 0 && selectedCount < filteredIds.length;
+    }
+
+    function renderPagination() {
+      var total = state.filteredRows.length;
+      var totalPages = getTotalPages();
+      var start = total ? (state.currentPage - 1) * state.pageSize + 1 : 0;
+      var end = total ? Math.min(state.currentPage * state.pageSize, total) : 0;
+
+      paginationSummary.textContent = "第 " + start + "-" + end + " 条，共 " + total + " 条";
+      pageIndicator.textContent = state.currentPage + " / " + totalPages;
+      pageSizeSelect.value = String(state.pageSize);
+      prevPageBtn.disabled = state.currentPage <= 1;
+      nextPageBtn.disabled = state.currentPage >= totalPages;
+    }
+
+    function renderTable() {
+      ensureValidPage();
+
+      if (!state.filteredRows.length) {
+        tableBody.innerHTML = "<tr><td colspan='17'><div class='empty'>暂无符合条件的数据，请调整筛选条件后重试。</div></td></tr>";
+        syncSelectAllCheckbox();
+        renderPagination();
+        metricValues();
+        return;
+      }
+
+      tableBody.innerHTML = getPagedRows().map(function (row) {
+        var isSubmitted = row.status === "已提交";
+        return [
+          "<tr>",
+          "<td class='select-cell'><input class='row-checkbox' type='checkbox' aria-label='选择记录' " + (state.selectedRowIds[row.id] ? "checked" : "") + (isSubmitted ? " disabled" : "") + " onchange=\"toggleRowSelection('" + row.id + "', this.checked)\" /></td>",
+          "<td class='listing-cell' title='" + row.productName + "'><div class='listing-title ellipsis'>" + row.productName + "</div><div class='listing-meta'><div><span class='meta-label'>MSKU：</span><span class='meta-value'>" + row.msku + "</span></div><div><span class='meta-label'>FNSKU：</span><span class='meta-value'>" + row.fnsku + "</span></div><div><span class='meta-label'>SKU：</span><span class='meta-value'>" + row.systemSku + "</span></div></div></td>",
+          "<td class='shop-cell'><div class='shop-meta'><div><span class='meta-label'>店铺：</span><span class='meta-value'>" + row.storeName + "</span></div><div><span class='meta-label'>店铺状态：</span><span class='shop-status " + (row.accountStatus === "正常" ? "normal" : "abnormal") + "'>" + row.accountStatus + "</span></div><div><span class='meta-label'>销售人员：</span><span class='meta-value'>" + row.owner + "</span></div></div></td>",
+          "<td>" + row.salable + "</td>",
+          "<td><span class='status-tag " + getStatusClass(row.status) + "'>" + row.status + "</span></td>",
+          "<td class='inventory-cell'><div class='inventory-grid'><div><span class='meta-label'>可售：</span><span class='meta-value'>" + row.sellable + "</span></div><div><span class='meta-label'>不可售：</span><span class='meta-value'>" + row.unsellable + "</span></div></div></td>",
+          "<td class='age-cell'><div class='age-grid'><div><span class='meta-label'>0-90天：</span><span class='meta-value'>" + row.age0 + "</span></div><div><span class='meta-label'>91-180天：</span><span class='meta-value'>" + row.age91 + "</span></div><div><span class='meta-label'>181-270天：</span><span class='meta-value'>" + row.age181 + "</span></div><div><span class='meta-label'>271-365天：</span><span class='meta-value'>" + row.age271 + "</span></div><div><span class='meta-label'>365+天：</span><span class='meta-value'>" + row.age365 + "</span></div></div></td>",
+          "<td>" + row.pushQty + "</td>",
+          "<td class='sales-cell'><div class='sales-grid'><div><span class='meta-label'>14天：</span><span class='meta-value'>" + row.sale14 + "</span></div><div><span class='meta-label'>30天：</span><span class='meta-value'>" + row.sale30 + "</span></div></div></td>",
+          "<td class='profit-cell'><div class='profit-grid'><div><span class='meta-label'>14天利润：</span><span class='meta-value'>" + row.profit14 + "</span></div><div><span class='meta-label'>30天利润：</span><span class='meta-value'>" + row.profit30 + "</span></div><div><span class='meta-label'>30天退款：</span><span class='meta-value'>" + row.refund30 + "</span></div></div></td>",
+          "<td>" + row.rating + "</td>",
+          "<td>" + row.price + "</td>",
+          "<td class='procurement-cell'><div class='procurement-grid'><div><span class='meta-label'>采购价格：</span><span class='meta-value'>" + row.buyPrice + "</span></div><div><span class='meta-label'>采购总价：</span><span class='meta-value'>" + row.buyTotal + "</span></div><div><span class='meta-label'>成本分摊：</span><span class='meta-value'>" + row.ratio + "</span></div></div></td>",
+          "<td class='actionfee-cell'><div class='actionfee-grid'><div><span class='meta-label'>移仓费用：</span><span class='meta-value'>" + getSiteCurrencySymbol(row.site) + row.transferFee + "</span></div><div><span class='meta-label'>销毁费用：</span><span class='meta-value'>" + getSiteCurrencySymbol(row.site) + row.disposalFee + "</span></div><div><span class='meta-label'>清算费用：</span><span class='meta-value'>" + getSiteCurrencySymbol(row.site) + row.liquidationFee + "</span></div></div></td>",
+          "<td class='advice-cell'><div class='advice-grid'><div><span class='meta-label'>移除方式：</span><span class='meta-value'>" + row.removeMethod + "</span></div><div><span class='meta-label'>移除原因：</span><span class='meta-value'>" + row.removeReason + "</span></div></div></td>",
+          "<td class='time-cell'><div class='time-grid'><div><span class='meta-label'>添加时间：</span><span class='meta-value'>" + formatDateOnly(row.addTime) + "</span></div><div><span class='meta-label'>提交时间：</span><span class='meta-value'>" + formatDateOnly(row.submitTime) + "</span></div></div></td>",
+          "<td><div class='action-group'>" + (isSubmitted ? "<button class='el-button text danger' disabled>已提交</button>" : "<button class='el-button text' onclick=\"openAudit('" + row.id + "')\">创建移除订单</button>") + "<button class='el-button text danger' onclick=\"openLog('" + row.id + "')\">日志</button></div></td>",
+          "</tr>"
+        ].join("");
+      }).join("");
+
+      syncSelectAllCheckbox();
+      renderPagination();
+      metricValues();
+    }
+
+    function toggleRowSelection(id, checked) {
+      if (checked) {
+        state.selectedRowIds[id] = true;
+      } else {
+        delete state.selectedRowIds[id];
+      }
+      syncSelectAllCheckbox();
+    }
+
+    function toggleAllRows(checked) {
+      getCreatableRows(getPagedRows()).forEach(function (row) {
+        if (checked) {
+          state.selectedRowIds[row.id] = true;
+        } else {
+          delete state.selectedRowIds[row.id];
+        }
+      });
+      renderTable();
+    }
+
+    function openBatchSubmit() {
+      var selectedRows = getCreatableRows(getSelectedRows());
+      if (!selectedRows.length) {
+        showToast("请先选择未提交的数据", true);
+        return;
+      }
+
+      selectedRows.forEach(function (row) {
+        state.batchDrafts[row.id] = {
+          method: row.removeMethod && row.removeMethod !== "-" ? row.removeMethod : "",
+          reason: row.removeReason && row.removeReason !== "-" ? row.removeReason : "",
+          costShare: row.ratio || ""
+        };
+      });
+
+      renderBatchTable();
+      batchMask.classList.add("show");
+    }
+
+    function closeBatchSubmit() {
+      batchMask.classList.remove("show");
+    }
+
+    function renderBatchTable() {
+      var selectedRows = getSelectedRows();
+      batchSummary.textContent = "已选择 " + selectedRows.length + " 条数据，可逐条调整审核移除方式和移除/销毁原因后批量创建移除订单。";
+
+      if (!selectedRows.length) {
+        batchTableBody.innerHTML = "<tr><td colspan='12'><div class='batch-empty'>当前没有待批量提交的数据</div></td></tr>";
+        return;
+      }
+
+      batchTableBody.innerHTML = selectedRows.map(function (row) {
+        var draft = state.batchDrafts[row.id] || { method: "", reason: "", costShare: "" };
+        return [
+          "<tr>",
+          "<td>" + row.storeName + "</td>",
+          "<td>" + row.msku + "</td>",
+          "<td>" + row.fnsku + "</td>",
+          "<td>" + row.systemSku + "</td>",
+          "<td class='batch-title'>" + row.productName + "</td>",
+          "<td>" + row.status + "</td>",
+          "<td>" + row.sellable + "</td>",
+          "<td>" + row.unsellable + "</td>",
+          "<td><select class='batch-select' onchange=\"updateBatchDraft('" + row.id + "', 'method', this.value)\">",
+          "<option value=''>请选择</option>",
+          "<option value='Return'" + (draft.method === "Return" ? " selected" : "") + ">Return</option>",
+          "<option value='Disposal'" + (draft.method === "Disposal" ? " selected" : "") + ">Disposal</option>",
+          "<option value='Liquidations'" + (draft.method === "Liquidations" ? " selected" : "") + ">Liquidations</option>",
+          "</select></td>",
+          "<td><select class='batch-select' onchange=\"updateBatchDraft('" + row.id + "', 'reason', this.value)\">",
+          "<option value=''>请选择</option>",
+          "<option value='呆滞产品'" + (draft.reason === "呆滞产品" ? " selected" : "") + ">呆滞产品</option>",
+          "<option value='过季产品'" + (draft.reason === "过季产品" ? " selected" : "") + ">过季产品</option>",
+          "<option value='禁售产品'" + (draft.reason === "禁售产品" ? " selected" : "") + ">禁售产品</option>",
+          "<option value='仿牌产品'" + (draft.reason === "仿牌产品" ? " selected" : "") + ">仿牌产品</option>",
+          "<option value='认证类问题'" + (draft.reason === "认证类问题" ? " selected" : "") + ">认证类问题</option>",
+          "<option value='已下架产品'" + (draft.reason === "已下架产品" ? " selected" : "") + ">已下架产品</option>",
+          "<option value='质量问题'" + (draft.reason === "质量问题" ? " selected" : "") + ">质量问题</option>",
+          "<option value='listing信息被篡改'" + (draft.reason === "listing信息被篡改" ? " selected" : "") + ">listing信息被篡改</option>",
+          "<option value='仓库发错货'" + (draft.reason === "仓库发错货" ? " selected" : "") + ">仓库发错货</option>",
+          "<option value='店铺被暂停'" + (draft.reason === "店铺被暂停" ? " selected" : "") + ">店铺被暂停</option>",
+          "<option value='店铺库容受限'" + (draft.reason === "店铺库容受限" ? " selected" : "") + ">店铺库容受限</option>",
+          "</select></td>",
+          "<td><input class='batch-input' value=\"" + draft.costShare + "\" onchange=\"updateBatchDraft('" + row.id + "', 'costShare', this.value)\" /></td>",
+          "<td><button class='el-button text' onclick=\"removeBatchRow('" + row.id + "')\">移除</button></td>",
+          "</tr>"
+        ].join("");
+      }).join("");
+    }
+
+    function updateBatchDraft(id, field, value) {
+      if (!state.batchDrafts[id]) {
+        state.batchDrafts[id] = { method: "", reason: "", costShare: "" };
+      }
+      state.batchDrafts[id][field] = value;
+    }
+
+    function removeBatchRow(id) {
+      delete state.selectedRowIds[id];
+      delete state.batchDrafts[id];
+      renderTable();
+      renderBatchTable();
+      if (!getSelectedRows().length) {
+        closeBatchSubmit();
+      }
+    }
+
+    function submitBatchAudit() {
+      var selectedRows = getCreatableRows(getSelectedRows());
+      if (!selectedRows.length) {
+        showToast("请先选择未提交的数据", true);
+        return;
+      }
+
+      for (var i = 0; i < selectedRows.length; i += 1) {
+        var row = selectedRows[i];
+        var draft = state.batchDrafts[row.id] || {};
+        if (!draft.method || !draft.reason) {
+          showToast("请补全所有批量提交数据的审核信息", true);
+          return;
+        }
+      }
+
+      selectedRows.forEach(function (row) {
+        var draft = state.batchDrafts[row.id];
+        row.status = "已提交";
+        row.submitTime = new Date().toLocaleString("zh-CN", { hour12: false }).replace(/\//g, "-");
+        row.removeMethod = draft.method;
+        row.removeReason = draft.reason;
+        row.ratio = draft.costShare || row.ratio;
+        logs[row.id] = logs[row.id] || [];
+        logs[row.id].unshift({
+          time: row.submitTime,
+          user: "当前用户",
+          action: "批量提交清库",
+          method: draft.method,
+          reason: draft.reason,
+          result: "提交成功"
+        });
+        delete state.selectedRowIds[row.id];
+        delete state.batchDrafts[row.id];
+      });
+
+      closeBatchSubmit();
+      applyFilters();
+      showToast("批量提交成功");
+    }
+
+    function applyFilters() {
+      var store = state.selectedStore.trim();
+      var status = document.getElementById("statusFilter").value.trim();
+      var owner = state.selectedOwner.trim().toLowerCase();
+      var keyword = document.getElementById("keywordFilter").value.trim().toLowerCase();
+      var timeType = document.getElementById("timeTypeFilter").value.trim();
+      var timeStartDate = document.getElementById("timeStartDateFilter").value.trim();
+      var timeEndDate = document.getElementById("timeEndDateFilter").value.trim();
+
+      state.filteredRows = rows.filter(function (row) {
+        var keywordMatch = !keyword || row.msku.toLowerCase().indexOf(keyword) > -1;
+        var timeMatch = true;
+
+        if (timeType && (timeStartDate || timeEndDate)) {
+          var rowDate = formatDateOnly(row[timeType]);
+          if (!rowDate || rowDate === "-") {
+            timeMatch = false;
+          } else {
+            timeMatch = (!timeStartDate || rowDate >= timeStartDate) &&
+              (!timeEndDate || rowDate <= timeEndDate);
+          }
+        }
+
+        return (!store || row.storeName === store) &&
+          (!status || row.status === status) &&
+          (!owner || row.owner.toLowerCase().indexOf(owner) > -1) &&
+          keywordMatch &&
+          timeMatch;
+      });
+
+      state.currentPage = 1;
+      renderTable();
+    }
+
+    function resetFilters() {
+      selectStore("");
+      selectOwner("");
+      document.getElementById("statusFilter").value = "";
+      document.getElementById("keywordFilter").value = "";
+      document.getElementById("timeTypeFilter").value = "";
+      document.getElementById("timeStartDateFilter").value = "";
+      document.getElementById("timeEndDateFilter").value = "";
+      state.filteredRows = rows.slice();
+      state.currentPage = 1;
+      renderTable();
+    }
+
+    function openAudit(id) {
+      var row = getRowById(id);
+      if (!row) return;
+      if (row.status === "已提交") {
+        showToast("已提交的数据不能重复创建移除订单", true);
+        return;
+      }
+
+      state.currentRowId = id;
+      document.getElementById("auditStore").textContent = row.storeName;
+      document.getElementById("auditMsku").textContent = row.msku;
+      document.getElementById("auditFnsku").textContent = row.fnsku;
+      document.getElementById("auditSystemSku").textContent = row.systemSku;
+      document.getElementById("auditStatus").textContent = row.status;
+      document.getElementById("auditSellable").textContent = row.sellable;
+      document.getElementById("auditUnsellable").textContent = row.unsellable;
+
+      removeMethod.value = row.removeMethod && row.removeMethod !== "-" ? row.removeMethod : "";
+      removeReason.value = row.removeReason && row.removeReason !== "-" ? row.removeReason : "";
+      costShareInput.value = row.ratio || "";
+      methodItem.classList.remove("error");
+      reasonItem.classList.remove("error");
+      auditMask.classList.add("show");
+    }
+
+    function closeAudit() {
+      auditMask.classList.remove("show");
+    }
+
+    function openLog(id) {
+      var row = getRowById(id);
+      var rowLogs = logs[id] || [];
+      if (!row) return;
+
+      logOverview.innerHTML = "当前记录：<strong>" + row.msku + "</strong>，产品：<strong>" + row.productName + "</strong>。日志按时间倒序展示，仅支持查看，不支持修改。";
+
+      if (!rowLogs.length) {
+        logTimeline.innerHTML = "<div class='empty'>暂无日志记录</div>";
+      } else {
+        logTimeline.innerHTML = rowLogs.map(function (item) {
+          return [
+            "<div class='timeline-item'>",
+            "<div class='timeline-head'>",
+            "<div class='timeline-title'>" + item.action + "</div>",
+            "<div class='timeline-meta'>" + item.time + "</div>",
+            "</div>",
+            "<div class='timeline-grid'>",
+            "<div><span>操作人：</span>" + item.user + "</div>",
+            "<div><span>提交结果：</span>" + item.result + "</div>",
+            "<div><span>审核移除方式：</span>" + item.method + "</div>",
+            "<div><span>移除/销毁原因：</span>" + item.reason + "</div>",
+            "</div>",
+            "</div>"
+          ].join("");
+        }).join("");
+      }
+
+      logDrawerMask.classList.add("show");
+    }
+
+    function closeLog() {
+      logDrawerMask.classList.remove("show");
+    }
+
+    function showToast(message, failed) {
+      toast.textContent = message;
+      toast.style.background = failed ? "rgba(245, 108, 108, 0.96)" : "rgba(103, 194, 58, 0.96)";
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(function () {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    function submitAudit() {
+      var valid = true;
+      var row = getRowById(state.currentRowId);
+
+      if (!removeMethod.value) {
+        methodItem.classList.add("error");
+        valid = false;
+      } else {
+        methodItem.classList.remove("error");
+      }
+
+      if (!removeReason.value) {
+        reasonItem.classList.add("error");
+        valid = false;
+      } else {
+        reasonItem.classList.remove("error");
+      }
+
+      if (!valid) {
+        return;
+      }
+
+      if (!row) {
+        showToast("提交失败，请稍后重试", true);
+        return;
+      }
+
+      if (row.status === "已提交") {
+        showToast("已提交的数据不能重复创建移除订单", true);
+        return;
+      }
+
+      row.status = "已提交";
+      row.submitTime = new Date().toLocaleString("zh-CN", { hour12: false }).replace(/\//g, "-");
+      row.removeMethod = removeMethod.value;
+      row.removeReason = removeReason.value;
+      row.ratio = costShareInput.value || row.ratio;
+      logs[row.id] = logs[row.id] || [];
+      logs[row.id].unshift({
+        time: row.submitTime,
+        user: "当前用户",
+        action: "提交清库",
+        method: removeMethod.value,
+        reason: removeReason.value,
+        result: "提交成功"
+      });
+      delete state.selectedRowIds[row.id];
+      delete state.batchDrafts[row.id];
+
+      closeAudit();
+      applyFilters();
+      openLog(row.id);
+      showToast("提交成功");
+    }
+
+    document.getElementById("searchBtn").addEventListener("click", applyFilters);
+    document.getElementById("resetBtn").addEventListener("click", resetFilters);
+    document.getElementById("batchSubmitBtn").addEventListener("click", openBatchSubmit);
+    storeFilterTrigger.addEventListener("click", function (event) {
+      event.stopPropagation();
+      setStoreFilterOpen(!storeFilter.classList.contains("open"));
+      setOwnerFilterOpen(false);
+    });
+    Array.prototype.forEach.call(storeDropdown.querySelectorAll(".store-option"), function (option) {
+      option.addEventListener("click", function (event) {
+        event.stopPropagation();
+        selectStore(this.getAttribute("data-value"));
+      });
+    });
+    Array.prototype.forEach.call(storeDropdown.querySelectorAll(".store-group-toggle"), function (toggle) {
+      toggle.addEventListener("click", function (event) {
+        event.stopPropagation();
+        toggleStoreGroup(this.getAttribute("data-site"));
+      });
+    });
+    ownerFilterTrigger.addEventListener("click", function (event) {
+      event.stopPropagation();
+      setOwnerFilterOpen(!ownerFilter.classList.contains("open"));
+      setStoreFilterOpen(false);
+    });
+    Array.prototype.forEach.call(ownerDropdown.querySelectorAll(".tree-option"), function (option) {
+      option.addEventListener("click", function (event) {
+        event.stopPropagation();
+        selectOwner(this.getAttribute("data-value"));
+      });
+    });
+    Array.prototype.forEach.call(ownerDropdown.querySelectorAll(".tree-group-toggle"), function (toggle) {
+      toggle.addEventListener("click", function (event) {
+        event.stopPropagation();
+        toggleOwnerGroup(this.getAttribute("data-group"));
+      });
+    });
+    document.getElementById("selectAllRows").addEventListener("change", function () {
+      toggleAllRows(this.checked);
+    });
+    pageSizeSelect.addEventListener("change", function () {
+      state.pageSize = Number(this.value);
+      state.currentPage = 1;
+      renderTable();
+    });
+    prevPageBtn.addEventListener("click", function () {
+      if (state.currentPage > 1) {
+        state.currentPage -= 1;
+        renderTable();
+      }
+    });
+    nextPageBtn.addEventListener("click", function () {
+      if (state.currentPage < getTotalPages()) {
+        state.currentPage += 1;
+        renderTable();
+      }
+    });
+    document.getElementById("closeDialogBtn").addEventListener("click", closeAudit);
+    document.getElementById("cancelDialogBtn").addEventListener("click", closeAudit);
+    document.getElementById("submitDialogBtn").addEventListener("click", submitAudit);
+    document.getElementById("closeBatchBtn").addEventListener("click", closeBatchSubmit);
+    document.getElementById("cancelBatchBtn").addEventListener("click", closeBatchSubmit);
+    document.getElementById("confirmBatchBtn").addEventListener("click", submitBatchAudit);
+    document.getElementById("closeDrawerBtn").addEventListener("click", closeLog);
+
+    auditMask.addEventListener("click", function (event) {
+      if (event.target === auditMask) {
+        closeAudit();
+      }
+    });
+
+    batchMask.addEventListener("click", function (event) {
+      if (event.target === batchMask) {
+        closeBatchSubmit();
+      }
+    });
+
+    logDrawerMask.addEventListener("click", function (event) {
+      if (event.target === logDrawerMask) {
+        closeLog();
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!storeFilter.contains(event.target)) {
+        setStoreFilterOpen(false);
+      }
+      if (!ownerFilter.contains(event.target)) {
+        setOwnerFilterOpen(false);
+      }
+    });
+
+    updateStoreTrigger();
+    updateOwnerTrigger();
+    renderTable();
+  </script>
+</body>
+</html>
