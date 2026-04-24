@@ -1444,6 +1444,10 @@
             <label>成本分摊</label>
             <input class="el-input" id="costShareInput" placeholder="请输入成本分摊，如 32%" />
           </div>
+          <div class="dialog-item">
+            <label>推送数量</label>
+            <input class="el-input" id="pushQtyInput" placeholder="请输入推送数量" />
+          </div>
         </div>
       </div>
       <div class="dialog-foot">
@@ -1473,6 +1477,7 @@
                 <th>当前提交状态</th>
                 <th>可售数</th>
                 <th>不可售数</th>
+                <th>推送数量</th>
                 <th>审核移除方式</th>
                 <th>移除/销毁原因</th>
                 <th>成本分摊</th>
@@ -1712,6 +1717,7 @@
     var removeMethod = document.getElementById("removeMethod");
     var removeReason = document.getElementById("removeReason");
     var costShareInput = document.getElementById("costShareInput");
+    var pushQtyInput = document.getElementById("pushQtyInput");
     var methodItem = document.getElementById("methodItem");
     var reasonItem = document.getElementById("reasonItem");
     var toast = document.getElementById("toast");
@@ -1945,7 +1951,8 @@
         state.batchDrafts[row.id] = {
           method: row.removeMethod && row.removeMethod !== "-" ? row.removeMethod : "",
           reason: row.removeReason && row.removeReason !== "-" ? row.removeReason : "",
-          costShare: row.ratio || ""
+          costShare: row.ratio || "",
+          pushQty: row.pushQty || ""
         };
       });
 
@@ -1962,12 +1969,12 @@
       batchSummary.textContent = "已选择 " + selectedRows.length + " 条数据，可逐条调整审核移除方式和移除/销毁原因后批量创建移除订单。";
 
       if (!selectedRows.length) {
-        batchTableBody.innerHTML = "<tr><td colspan='12'><div class='batch-empty'>当前没有待批量提交的数据</div></td></tr>";
+        batchTableBody.innerHTML = "<tr><td colspan='13'><div class='batch-empty'>当前没有待批量提交的数据</div></td></tr>";
         return;
       }
 
       batchTableBody.innerHTML = selectedRows.map(function (row) {
-        var draft = state.batchDrafts[row.id] || { method: "", reason: "", costShare: "" };
+        var draft = state.batchDrafts[row.id] || { method: "", reason: "", costShare: "", pushQty: "" };
         return [
           "<tr>",
           "<td>" + row.storeName + "</td>",
@@ -1978,6 +1985,7 @@
           "<td>" + row.status + "</td>",
           "<td>" + row.sellable + "</td>",
           "<td>" + row.unsellable + "</td>",
+          "<td><input class='batch-input' value=\"" + draft.pushQty + "\" onchange=\"updateBatchDraft('" + row.id + "', 'pushQty', this.value)\" /></td>",
           "<td><select class='batch-select' onchange=\"updateBatchDraft('" + row.id + "', 'method', this.value)\">",
           "<option value=''>请选择</option>",
           "<option value='Return'" + (draft.method === "Return" ? " selected" : "") + ">Return</option>",
@@ -2007,7 +2015,7 @@
 
     function updateBatchDraft(id, field, value) {
       if (!state.batchDrafts[id]) {
-        state.batchDrafts[id] = { method: "", reason: "", costShare: "" };
+        state.batchDrafts[id] = { method: "", reason: "", costShare: "", pushQty: "" };
       }
       state.batchDrafts[id][field] = value;
     }
@@ -2130,6 +2138,7 @@
       removeMethod.value = row.removeMethod && row.removeMethod !== "-" ? row.removeMethod : "";
       removeReason.value = row.removeReason && row.removeReason !== "-" ? row.removeReason : "";
       costShareInput.value = row.ratio || "";
+      pushQtyInput.value = row.pushQty || "";
       methodItem.classList.remove("error");
       reasonItem.classList.remove("error");
       auditMask.classList.add("show");
@@ -2221,6 +2230,7 @@
       row.removeMethod = removeMethod.value;
       row.removeReason = removeReason.value;
       row.ratio = costShareInput.value || row.ratio;
+      row.pushQty = pushQtyInput.value || row.pushQty;
       logs[row.id] = logs[row.id] || [];
       logs[row.id].unshift({
         time: row.submitTime,
