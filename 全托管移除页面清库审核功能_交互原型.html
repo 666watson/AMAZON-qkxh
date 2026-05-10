@@ -1096,6 +1096,10 @@
       border-color: var(--el-color-danger);
     }
 
+    .dialog-item.error .el-input {
+      border-color: var(--el-color-danger);
+    }
+
     .dialog-item.error .error-message {
       display: block;
     }
@@ -1594,14 +1598,16 @@
             <div class="hint">提交成功后写入当前记录日志，列表不直接展示该字段。</div>
             <div class="error-message">请选择移除/销毁原因</div>
           </div>
-          <div class="dialog-item">
-            <label>成本分摊</label>
-            <input class="el-input" id="costShareInput" placeholder="请输入成本分摊，如 32%" />
+          <div class="dialog-item" id="costShareItem">
+            <label><span class="required">*</span>成本分摊</label>
+            <input class="el-input" id="costShareInput" placeholder="请输入成本分摊，如 32%（必填）" />
+            <div class="error-message">请填写成本分摊</div>
           </div>
-          <div class="dialog-item">
-            <label>最终推送数量</label>
-            <div class="hint" id="pushQtySuggestHint">建议推送数量：-</div>
-            <input class="el-input" id="pushQtyInput" placeholder="请输入最终推送数量，留空则按建议值提交" />
+          <div class="dialog-item" id="pushQtyItem">
+            <label><span class="required">*</span>最终推送数量</label>
+            <div class="hint" id="pushQtySuggestHint">建议推送数量：-（必填，请填写最终推送数量）</div>
+            <input class="el-input" id="pushQtyInput" placeholder="请输入最终推送数量（必填）" />
+            <div class="error-message">请填写最终推送数量</div>
           </div>
         </div>
       </div>
@@ -1623,7 +1629,7 @@
         <div class="batch-unified-method" id="batchMethodPanel">
           <div class="batch-unified-title">移除方式</div>
           <p class="batch-unified-desc">
-            批量创建时，所选 listing 须为同一店铺；以下「移除方式」对本次选中的所有行<strong>统一生效</strong>，不可在表格内逐条选择不同类型。移除/销毁原因、成本分摊、最终推送数量仍可按行填写。
+            批量创建时，所选 listing 须为同一店铺；以下「移除方式」对本次选中的所有行<strong>统一生效</strong>，不可在表格内逐条选择不同类型。移除/销毁原因、成本分摊、最终推送数量须<strong>逐行必填</strong>。
           </p>
           <label class="method-label" for="batchGlobalRemoveMethod"><span class="required">*</span>移除方式</label>
           <select class="batch-select batch-global-method-select" id="batchGlobalRemoveMethod">
@@ -1646,9 +1652,9 @@
                 <th>当前提交状态</th>
                 <th>可售数</th>
                 <th>不可售数</th>
-                <th>最终推送数量 / 建议推送数量</th>
-                <th>移除/销毁原因</th>
-                <th>成本分摊</th>
+                <th>最终推送数量 / 建议推送数量<span class="required">*</span></th>
+                <th>移除/销毁原因<span class="required">*</span></th>
+                <th>成本分摊<span class="required">*</span></th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -2004,6 +2010,8 @@
     var pushQtyInput = document.getElementById("pushQtyInput");
     var methodItem = document.getElementById("methodItem");
     var reasonItem = document.getElementById("reasonItem");
+    var costShareItem = document.getElementById("costShareItem");
+    var pushQtyItem = document.getElementById("pushQtyItem");
     var toast = document.getElementById("toast");
     var storeFilter = document.getElementById("storeFilter");
     var storeFilterTrigger = document.getElementById("storeFilterTrigger");
@@ -2425,7 +2433,7 @@
       batchSummary.textContent =
         "已选择 " +
         selectedRows.length +
-        " 条数据。请在上方统一选择「移除方式」，并在表格中逐条完善移除/销毁原因等信息后批量创建移除订单。";
+        " 条数据。请在上方统一选择「移除方式」，并在表格中逐行必填：移除/销毁原因、成本分摊、最终推送数量，完善后批量创建移除订单。";
 
       if (!selectedRows.length) {
         batchTableBody.innerHTML = "<tr><td colspan='12'><div class='batch-empty'>当前没有待批量提交的数据</div></td></tr>";
@@ -2446,13 +2454,13 @@
           "<td>" + row.unsellable + "</td>",
           "<td class='batch-push-qty'><div class='meta-label' style='margin-bottom:4px;font-size:12px;color:#909399'>最终推送数量</div><input class='batch-input' value=\"" +
           draft.pushQty +
-          "\" placeholder='请输入' onchange=\"updateBatchDraft('" +
+          "\" placeholder='必填，请输入最终推送数量' onchange=\"updateBatchDraft('" +
           row.id +
           "', 'pushQty', this.value)\" /><div class='push-suggest-line'><span class='meta-label'>建议推送数量：</span><span class='meta-value'>" +
           (row.suggestedPushQty != null ? row.suggestedPushQty : "-") +
           "</span></div></td>",
           "<td><select class='batch-select' onchange=\"updateBatchDraft('" + row.id + "', 'reason', this.value)\">",
-          "<option value=''>请选择</option>",
+          "<option value=''>请选择移除/销毁原因（必填）</option>",
           "<option value='呆滞产品'" + (draft.reason === "呆滞产品" ? " selected" : "") + ">呆滞产品</option>",
           "<option value='过季产品'" + (draft.reason === "过季产品" ? " selected" : "") + ">过季产品</option>",
           "<option value='禁售产品'" + (draft.reason === "禁售产品" ? " selected" : "") + ">禁售产品</option>",
@@ -2465,7 +2473,11 @@
           "<option value='店铺被暂停'" + (draft.reason === "店铺被暂停" ? " selected" : "") + ">店铺被暂停</option>",
           "<option value='店铺库容受限'" + (draft.reason === "店铺库容受限" ? " selected" : "") + ">店铺库容受限</option>",
           "</select></td>",
-          "<td><input class='batch-input' value=\"" + draft.costShare + "\" onchange=\"updateBatchDraft('" + row.id + "', 'costShare', this.value)\" /></td>",
+          "<td><input class='batch-input' value=\"" +
+          draft.costShare +
+          "\" placeholder='必填，如 32%' onchange=\"updateBatchDraft('" +
+          row.id +
+          "', 'costShare', this.value)\" /></td>",
           "<td><button class='el-button text' onclick=\"removeBatchRow('" + row.id + "')\">移除</button></td>",
           "</tr>"
         ].join("");
@@ -2518,8 +2530,16 @@
       for (var i = 0; i < selectedRows.length; i += 1) {
         var row = selectedRows[i];
         var draft = state.batchDrafts[row.id] || {};
-        if (!draft.reason) {
-          showToast("请为每一行选择移除/销毁原因", true);
+        if (!String(draft.reason || "").trim()) {
+          showToast("请为每一行选择移除/销毁原因（MSKU：" + row.msku + "）", true);
+          return;
+        }
+        if (!(draft.costShare || "").trim()) {
+          showToast("请为每一行填写成本分摊（MSKU：" + row.msku + "）", true);
+          return;
+        }
+        if (!(draft.pushQty || "").trim()) {
+          showToast("请为每一行填写最终推送数量（MSKU：" + row.msku + "）", true);
           return;
         }
       }
@@ -2535,12 +2555,8 @@
         row.submitTime = new Date().toLocaleString("zh-CN", { hour12: false }).replace(/\//g, "-");
         row.removeMethod = globalMethod;
         row.removeReason = draft.reason;
-        row.ratio = draft.costShare || row.ratio;
-        var finalPushInput = (draft.pushQty || "").trim();
-        row.finalPushQty =
-          finalPushInput !== ""
-            ? finalPushInput
-            : String(row.suggestedPushQty != null ? row.suggestedPushQty : "");
+        row.ratio = (draft.costShare || "").trim();
+        row.finalPushQty = (draft.pushQty || "").trim();
         prependOrderLogBundle(row, { submitter: "当前用户" });
         delete state.selectedRowIds[row.id];
         delete state.batchDrafts[row.id];
@@ -2702,6 +2718,8 @@
         finDraft || (row.suggestedPushQty != null ? String(row.suggestedPushQty) : "");
       methodItem.classList.remove("error");
       reasonItem.classList.remove("error");
+      costShareItem.classList.remove("error");
+      pushQtyItem.classList.remove("error");
       auditMask.classList.add("show");
     }
 
@@ -2774,6 +2792,20 @@
         reasonItem.classList.remove("error");
       }
 
+      if (!costShareInput.value.trim()) {
+        costShareItem.classList.add("error");
+        valid = false;
+      } else {
+        costShareItem.classList.remove("error");
+      }
+
+      if (!pushQtyInput.value.trim()) {
+        pushQtyItem.classList.add("error");
+        valid = false;
+      } else {
+        pushQtyItem.classList.remove("error");
+      }
+
       if (!valid) {
         return;
       }
@@ -2797,12 +2829,8 @@
       row.submitTime = new Date().toLocaleString("zh-CN", { hour12: false }).replace(/\//g, "-");
       row.removeMethod = removeMethod.value;
       row.removeReason = removeReason.value;
-      row.ratio = costShareInput.value || row.ratio;
-      var finalPushInputSingle = pushQtyInput.value.trim();
-      row.finalPushQty =
-        finalPushInputSingle !== ""
-          ? finalPushInputSingle
-          : String(row.suggestedPushQty != null ? row.suggestedPushQty : "");
+      row.ratio = costShareInput.value.trim();
+      row.finalPushQty = pushQtyInput.value.trim();
       prependOrderLogBundle(row, { submitter: "当前用户" });
       delete state.selectedRowIds[row.id];
       delete state.batchDrafts[row.id];
