@@ -202,6 +202,49 @@
       width: 360px;
     }
 
+    .form-item.status-compound-item {
+      width: 380px;
+      min-width: 280px;
+    }
+
+    .status-compound-group {
+      display: flex;
+      align-items: stretch;
+      width: 100%;
+      border-radius: var(--el-border-radius-base);
+    }
+
+    .status-compound-group:focus-within {
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.16);
+      position: relative;
+      z-index: 1;
+    }
+
+    .status-compound-group:focus-within .el-select {
+      border-color: var(--el-color-primary);
+    }
+
+    .status-compound-group .el-select:first-of-type {
+      width: 120px;
+      flex: 0 0 120px;
+      border-top-left-radius: var(--el-border-radius-base);
+      border-bottom-left-radius: var(--el-border-radius-base);
+    }
+
+    .status-compound-group .el-select:last-of-type {
+      flex: 1;
+      min-width: 0;
+      margin-left: -1px;
+      border-top-right-radius: var(--el-border-radius-base);
+      border-bottom-right-radius: var(--el-border-radius-base);
+    }
+
+    .status-compound-group .el-select:disabled {
+      cursor: not-allowed;
+      background: #f5f7fa;
+      color: var(--el-text-color-secondary);
+    }
+
     .el-input,
     .el-select {
       width: 100%;
@@ -556,7 +599,7 @@
 
     table {
       width: 100%;
-      min-width: 2520px;
+      min-width: 2580px;
       border-collapse: collapse;
       font-size: 13px;
     }
@@ -638,10 +681,12 @@
       margin-bottom: 6px;
       font-size: 13px;
       line-height: 1.5;
-      max-height: 3em;
-      overflow: hidden;
       font-weight: 600;
       color: var(--el-text-color-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
     }
 
     .listing-meta {
@@ -675,6 +720,33 @@
     .inventory-grid {
       display: grid;
       gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .push-qty-cell {
+      min-width: 130px;
+      max-width: 150px;
+      white-space: normal;
+      line-height: 1.5;
+      vertical-align: middle;
+    }
+
+    .push-qty-grid {
+      display: grid;
+      gap: 2px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .batch-push-qty {
+      min-width: 100px;
+      white-space: normal;
+      vertical-align: middle;
+    }
+
+    .batch-push-qty .push-suggest-line {
+      margin-top: 8px;
       font-size: 12px;
       color: var(--el-text-color-secondary);
     }
@@ -836,6 +908,27 @@
       border: 1px solid transparent;
     }
 
+    .status-compound-cell {
+      min-width: 220px;
+      max-width: 260px;
+      white-space: normal;
+      line-height: 1.5;
+      vertical-align: middle;
+    }
+
+    .status-grid {
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .status-grid-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px 6px;
+    }
+
     .status-tag.pending,
     .mini-tag.warning {
       color: var(--el-color-warning);
@@ -855,6 +948,18 @@
       color: var(--el-color-info);
       background: #f4f4f5;
       border-color: #e9e9eb;
+    }
+
+    .mini-tag.danger {
+      color: var(--el-color-danger);
+      background: #fef0f0;
+      border-color: #fde2e2;
+    }
+
+    .mini-tag.pushing {
+      color: #409eff;
+      background: #ecf5ff;
+      border-color: #d9ecff;
     }
 
     .action-group {
@@ -891,8 +996,20 @@
       width: min(1440px, calc(100vw - 32px));
     }
 
-    .dialog-header,
-    .drawer-header {
+    .dialog.log-dialog {
+      width: min(560px, calc(100vw - 32px));
+      max-height: min(82vh, 720px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dialog.log-dialog .dialog-body {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    .dialog-header {
       padding: 18px 20px;
       display: flex;
       align-items: center;
@@ -900,8 +1017,7 @@
       border-bottom: 1px solid var(--el-border-color-light);
     }
 
-    .dialog-title,
-    .drawer-title {
+    .dialog-title {
       font-size: 18px;
       font-weight: 600;
     }
@@ -1004,6 +1120,54 @@
       line-height: 1.7;
     }
 
+    .batch-unified-method {
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1px solid #d9ecff;
+      background: #fafcff;
+    }
+
+    .batch-unified-method .batch-unified-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+    }
+
+    .batch-unified-method .batch-unified-desc {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+      line-height: 1.65;
+    }
+
+    .batch-unified-method .method-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--el-text-color-regular);
+    }
+
+    .batch-unified-method .batch-global-method-select {
+      max-width: 320px;
+    }
+
+    .batch-unified-method.show-error .batch-global-method-select {
+      border-color: var(--el-color-danger);
+    }
+
+    .batch-unified-method .batch-method-inline-error {
+      display: none;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--el-color-danger);
+    }
+
+    .batch-unified-method.show-error .batch-method-inline-error {
+      display: block;
+    }
+
     .batch-table-wrap {
       max-height: 62vh;
       overflow: auto;
@@ -1013,7 +1177,7 @@
 
     .batch-table {
       width: 100%;
-      min-width: 1320px;
+      min-width: 1160px;
       border-collapse: collapse;
       font-size: 13px;
     }
@@ -1075,36 +1239,6 @@
       font-size: 13px;
     }
 
-    .drawer-mask {
-      position: fixed;
-      inset: 0;
-      display: none;
-      background: rgba(0, 0, 0, 0.35);
-      z-index: 60;
-    }
-
-    .drawer-mask.show {
-      display: block;
-    }
-
-    .drawer {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 560px;
-      max-width: calc(100vw - 24px);
-      height: 100%;
-      background: #fff;
-      box-shadow: -12px 0 32px rgba(0, 0, 0, 0.14);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .drawer-body {
-      padding: 20px;
-      overflow: auto;
-    }
-
     .log-overview {
       margin-bottom: 18px;
       padding: 14px 16px;
@@ -1154,6 +1288,19 @@
     }
 
     .timeline-meta {
+      color: var(--el-text-color-primary);
+    }
+
+    .timeline-log-user {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .timeline-log-detail {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.65;
       color: var(--el-text-color-primary);
     }
 
@@ -1236,10 +1383,10 @@
         width: 100%;
       }
 
-      .drawer {
+      .form-item.status-compound-item {
         width: 100%;
-        max-width: 100%;
       }
+
     }
   </style>
 </head>
@@ -1283,12 +1430,19 @@
               </div>
             </div>
           </div>
-          <div class="form-item">
-            <select class="el-select" id="statusFilter">
-              <option value="">全部状态</option>
-              <option value="待提交">待提交</option>
-              <option value="已提交">已提交</option>
-            </select>
+          <div class="form-item status-compound-item">
+            <div class="status-compound-group" id="statusCompoundGroup">
+              <select class="el-select" id="statusTypeFilter" aria-label="状态类型">
+                <option value="">状态类型</option>
+                <option value="submit">提交状态</option>
+                <option value="audit">审核状态</option>
+                <option value="order">订单状态</option>
+                <option value="push">推送状态</option>
+              </select>
+              <select class="el-select" id="statusValueFilter" aria-label="状态值" disabled>
+                <option value="">请选择</option>
+              </select>
+            </div>
           </div>
           <div class="form-item owner-filter-item">
             <div class="tree-filter" id="ownerFilter">
@@ -1353,7 +1507,7 @@
                 <th>listing信息</th>
                 <th>店铺/人员</th>
                 <th>是否可售</th>
-                <th>提交状态</th>
+                <th>状态</th>
                 <th>库存</th>
                 <th>库龄库存</th>
                 <th>推送数量</th>
@@ -1411,14 +1565,14 @@
         <div class="dialog-form">
           <div class="section-title" style="margin-bottom: -4px;">可调整信息</div>
           <div class="dialog-item" id="methodItem">
-            <label><span class="required">*</span>审核移除方式</label>
+            <label><span class="required">*</span>移除方式</label>
             <select class="el-select" id="removeMethod">
-              <option value="">请选择审核移除方式</option>
+              <option value="">请选择移除方式</option>
               <option value="Return">Return</option>
               <option value="Disposal">Disposal</option>
               <option value="Liquidations">Liquidations</option>
             </select>
-            <div class="error-message">请选择审核移除方式</div>
+            <div class="error-message">请选择移除方式</div>
           </div>
 
           <div class="dialog-item" id="reasonItem">
@@ -1445,8 +1599,9 @@
             <input class="el-input" id="costShareInput" placeholder="请输入成本分摊，如 32%" />
           </div>
           <div class="dialog-item">
-            <label>推送数量</label>
-            <input class="el-input" id="pushQtyInput" placeholder="请输入推送数量" />
+            <label>最终推送数量</label>
+            <div class="hint" id="pushQtySuggestHint">建议推送数量：-</div>
+            <input class="el-input" id="pushQtyInput" placeholder="请输入最终推送数量，留空则按建议值提交" />
           </div>
         </div>
       </div>
@@ -1465,6 +1620,20 @@
       </div>
       <div class="dialog-body">
         <div class="batch-summary" id="batchSummary">已选择 0 条数据，可统一设置后批量创建移除订单。</div>
+        <div class="batch-unified-method" id="batchMethodPanel">
+          <div class="batch-unified-title">移除方式</div>
+          <p class="batch-unified-desc">
+            批量创建时，所选 listing 须为同一店铺；以下「移除方式」对本次选中的所有行<strong>统一生效</strong>，不可在表格内逐条选择不同类型。移除/销毁原因、成本分摊、最终推送数量仍可按行填写。
+          </p>
+          <label class="method-label" for="batchGlobalRemoveMethod"><span class="required">*</span>移除方式</label>
+          <select class="batch-select batch-global-method-select" id="batchGlobalRemoveMethod">
+            <option value="">请选择移除方式</option>
+            <option value="Return">Return</option>
+            <option value="Disposal">Disposal</option>
+            <option value="Liquidations">Liquidations</option>
+          </select>
+          <div class="batch-method-inline-error">请选择移除方式</div>
+        </div>
         <div class="batch-table-wrap">
           <table class="batch-table">
             <thead>
@@ -1477,8 +1646,7 @@
                 <th>当前提交状态</th>
                 <th>可售数</th>
                 <th>不可售数</th>
-                <th>推送数量</th>
-                <th>审核移除方式</th>
+                <th>最终推送数量 / 建议推送数量</th>
                 <th>移除/销毁原因</th>
                 <th>成本分摊</th>
                 <th>操作</th>
@@ -1495,17 +1663,17 @@
     </div>
   </div>
 
-  <div class="drawer-mask" id="logDrawerMask">
-    <aside class="drawer">
-      <div class="drawer-header">
-        <div class="drawer-title">清库日志</div>
-        <button class="close-btn" id="closeDrawerBtn" aria-label="关闭">×</button>
+  <div class="dialog-mask" id="orderLogMask" style="z-index: 55">
+    <div class="dialog log-dialog">
+      <div class="dialog-header">
+        <div class="dialog-title">操作日志</div>
+        <button class="close-btn" id="closeOrderLogBtn" aria-label="关闭">×</button>
       </div>
-      <div class="drawer-body">
-        <div class="log-overview" id="logOverview">请选择一条记录查看清库审核历史。</div>
+      <div class="dialog-body">
+        <div class="log-overview" id="logOverview">请选择一条记录查看操作日志。</div>
         <div class="timeline" id="logTimeline"></div>
       </div>
-    </aside>
+    </div>
   </div>
 
   <div class="toast" id="toast">提交成功</div>
@@ -1524,7 +1692,8 @@
         msku: "MSKU-US-001",
         sellable: 126,
         unsellable: 14,
-        pushQty: 20,
+        suggestedPushQty: 20,
+        finalPushQty: "-",
         allocatorName: "王宁",
         allocatorNo: "FH1023",
         ratio: "32%",
@@ -1548,6 +1717,10 @@
         disposalFee: "96.00",
         liquidationFee: "40.00",
         status: "待提交",
+        removeOrderNo: "-",
+        auditStatus: "-",
+        orderStatus: "-",
+        pushStatus: "-",
         addTime: "2026-04-22 09:30:11",
         submitTime: "-",
         removeMethod: "-",
@@ -1565,7 +1738,8 @@
         msku: "MSKU-DE-014",
         sellable: 58,
         unsellable: 6,
-        pushQty: 10,
+        suggestedPushQty: 12,
+        finalPushQty: 10,
         allocatorName: "赵可",
         allocatorNo: "FH1098",
         ratio: "25%",
@@ -1589,6 +1763,10 @@
         disposalFee: "52.00",
         liquidationFee: "22.00",
         status: "已提交",
+        removeOrderNo: "FBA-REM-US-202604228821",
+        auditStatus: "全部通过",
+        orderStatus: "Completed",
+        pushStatus: "推送成功",
         addTime: "2026-04-22 09:42:03",
         submitTime: "2026-04-22 10:18:25",
         removeMethod: "Disposal",
@@ -1606,7 +1784,8 @@
         msku: "MSKU-UK-106",
         sellable: 12,
         unsellable: 48,
-        pushQty: 15,
+        suggestedPushQty: 15,
+        finalPushQty: "-",
         allocatorName: "何川",
         allocatorNo: "FH1186",
         ratio: "45%",
@@ -1630,7 +1809,103 @@
         disposalFee: "88.00",
         liquidationFee: "20.00",
         status: "待提交",
+        removeOrderNo: "-",
+        auditStatus: "-",
+        orderStatus: "-",
+        pushStatus: "-",
         addTime: "2026-04-22 09:58:44",
+        submitTime: "-",
+        removeMethod: "-",
+        removeReason: "-"
+      },
+      {
+        id: "rec-004",
+        channel: "Amazon",
+        storeName: "US-Amazon店",
+        site: "US",
+        accountStatus: "正常",
+        owner: "李青",
+        systemSku: "SKU-108833",
+        fnsku: "X004-BRD-02",
+        msku: "MSKU-US-204",
+        sellable: 40,
+        unsellable: 2,
+        suggestedPushQty: 8,
+        finalPushQty: 8,
+        allocatorName: "周洋",
+        allocatorNo: "FH1201",
+        ratio: "18%",
+        productName: "Stainless Steel Water Bottle Insulated 32oz Leak Proof Sport Lid",
+        salable: "是",
+        refund30: "0.9%",
+        rating: "4.6",
+        price: "$24.50",
+        age365: 4,
+        age271: 6,
+        age181: 10,
+        age91: 12,
+        age0: 22,
+        buyPrice: "22.00",
+        buyTotal: "176.00",
+        sale14: 18,
+        profit14: "11.2%",
+        sale30: 41,
+        profit30: "9.8%",
+        transferFee: "35.00",
+        disposalFee: "28.00",
+        liquidationFee: "12.00",
+        status: "已提交",
+        removeOrderNo: "FBA-REM-US-202604229104",
+        auditStatus: "部分通过",
+        orderStatus: "Pending",
+        pushStatus: "推送中",
+        addTime: "2026-04-23 08:12:00",
+        submitTime: "2026-04-23 08:40:00",
+        removeMethod: "Return",
+        removeReason: "过季产品"
+      },
+      {
+        id: "rec-005",
+        channel: "Amazon",
+        storeName: "US-Amazon店",
+        site: "US",
+        accountStatus: "正常",
+        owner: "陈晓雨",
+        systemSku: "SKU-110902",
+        fnsku: "X005-USM-77",
+        msku: "MSKU-US-512",
+        sellable: 88,
+        unsellable: 4,
+        suggestedPushQty: 16,
+        finalPushQty: "-",
+        allocatorName: "王宁",
+        allocatorNo: "FH1023",
+        ratio: "28%",
+        productName: "Cordless Handheld Vacuum Cleaner for Car and Home, Lightweight Mini",
+        salable: "是",
+        refund30: "1.8%",
+        rating: "4.4",
+        price: "$42.80",
+        age365: 2,
+        age271: 5,
+        age181: 11,
+        age91: 19,
+        age0: 55,
+        buyPrice: "48.00",
+        buyTotal: "384.00",
+        sale14: 31,
+        profit14: "9.6%",
+        sale30: 76,
+        profit30: "8.1%",
+        transferFee: "55.00",
+        disposalFee: "42.00",
+        liquidationFee: "18.00",
+        status: "待提交",
+        removeOrderNo: "-",
+        auditStatus: "-",
+        orderStatus: "-",
+        pushStatus: "-",
+        addTime: "2026-05-08 14:22:05",
         submitTime: "-",
         removeMethod: "-",
         removeReason: "-"
@@ -1638,52 +1913,61 @@
     ];
 
     var logs = {
-      "rec-001": [
-        {
-          time: "2026-04-22 09:30:11",
-          user: "系统",
-          action: "进入待清库审核",
-          method: "-",
-          reason: "-",
-          result: "待人工处理"
-        }
-      ],
+      "rec-001": [],
       "rec-002": [
+        {
+          time: "2026-04-23 09:10:00",
+          user: "系统",
+          logType: "订单状态",
+          content: "订单状态由 Pending 变更为 Completed。"
+        },
+        {
+          time: "2026-04-23 08:55:00",
+          user: "系统",
+          logType: "推送状态",
+          content: "推送状态由 推送中 变更为 推送成功。"
+        },
+        {
+          time: "2026-04-23 08:30:00",
+          user: "系统",
+          logType: "审核状态",
+          content: "审核状态由 审核中 变更为 全部通过。"
+        },
         {
           time: "2026-04-22 10:18:25",
           user: "王雪",
-          action: "提交清库",
-          method: "Disposal",
-          reason: "呆滞产品",
-          result: "提交成功"
-        },
-        {
-          time: "2026-04-22 09:42:03",
-          user: "系统",
-          action: "进入待清库审核",
-          method: "-",
-          reason: "-",
-          result: "待人工处理"
+          logType: "提交订单",
+          content: "已提交移除订单，移除订单号：FBA-REM-US-202604228821；移除方式：Disposal。"
         }
       ],
-      "rec-003": [
+      "rec-003": [],
+      "rec-004": [
         {
-          time: "2026-04-22 11:06:19",
+          time: "2026-04-23 08:43:00",
           user: "系统",
-          action: "提交结果回写",
-          method: "Return",
-          reason: "店铺库容受限",
-          result: "待复核"
+          logType: "推送状态",
+          content: "推送状态：推送中。"
         },
         {
-          time: "2026-04-22 09:58:44",
+          time: "2026-04-23 08:42:00",
           user: "系统",
-          action: "进入待清库审核",
-          method: "-",
-          reason: "-",
-          result: "待人工处理"
+          logType: "订单状态",
+          content: "订单状态：Pending。"
+        },
+        {
+          time: "2026-04-23 08:41:00",
+          user: "系统",
+          logType: "审核状态",
+          content: "审核状态：部分通过。"
+        },
+        {
+          time: "2026-04-23 08:40:00",
+          user: "刘洋",
+          logType: "提交订单",
+          content: "已提交移除订单，移除订单号：FBA-REM-US-202604229104；移除方式：Return。"
         }
-      ]
+      ],
+      "rec-005": []
     };
 
     var state = {
@@ -1708,7 +1992,7 @@
 
     var auditMask = document.getElementById("auditMask");
     var batchMask = document.getElementById("batchMask");
-    var logDrawerMask = document.getElementById("logDrawerMask");
+    var orderLogMask = document.getElementById("orderLogMask");
     var tableBody = document.getElementById("tableBody");
     var batchTableBody = document.getElementById("batchTableBody");
     var batchSummary = document.getElementById("batchSummary");
@@ -1739,10 +2023,116 @@
       });
     }
 
+    function prependOrderLogBundle(row, opts) {
+      opts = opts || {};
+      var t = row.submitTime;
+      var submitter = opts.submitter || "当前用户";
+      logs[row.id] = logs[row.id] || [];
+      var block = [
+        {
+          time: t,
+          user: submitter,
+          logType: "提交订单",
+          content:
+            "已提交移除订单，移除订单号：" +
+            row.removeOrderNo +
+            "；移除方式：" +
+            (row.removeMethod || "-") +
+            "。"
+        },
+        {
+          time: t,
+          user: "系统",
+          logType: "审核状态",
+          content: "审核状态：" + (row.auditStatus || "-") + "。"
+        },
+        {
+          time: t,
+          user: "系统",
+          logType: "订单状态",
+          content: "订单状态：" + (row.orderStatus || "-") + "。"
+        },
+        {
+          time: t,
+          user: "系统",
+          logType: "推送状态",
+          content: "推送状态：" + (row.pushStatus || "-") + "。"
+        }
+      ];
+      logs[row.id] = block.concat(logs[row.id]);
+    }
+
     function getStatusClass(status) {
       if (status === "已提交") return "success";
       if (status === "待复核") return "info";
       return "pending";
+    }
+
+    function getAuditStatusClass(value) {
+      if (value === "全部通过" || value === "部分通过") return "success";
+      if (value === "全部驳回" || value === "已作废") return "danger";
+      if (value === "审核中") return "warning";
+      if (value === "无匹配流程") return "info";
+      return "info";
+    }
+
+    function getOrderStatusClass(value) {
+      if (value === "Completed") return "success";
+      if (value === "Cancelled") return "danger";
+      if (value === "Pending") return "warning";
+      return "info";
+    }
+
+    function getPushStatusClass(value) {
+      if (value === "推送成功") return "success";
+      if (value === "推送失败") return "danger";
+      if (value === "推送中") return "pushing";
+      return "info";
+    }
+
+    function renderLabeledStatusTag(label, value, classFn) {
+      if (!value || value === "-") {
+        return "<div class='status-grid-row'><span class='meta-label'>" + label + "</span><span class='meta-value'>-</span></div>";
+      }
+      return "<div class='status-grid-row'><span class='meta-label'>" + label + "</span><span class='mini-tag " + classFn(value) + "'>" + value + "</span></div>";
+    }
+
+    function renderStatusCompoundCell(row) {
+      var submitRow =
+        "<div class='status-grid-row'><span class='meta-label'>提交状态：</span><span class='status-tag " +
+        getStatusClass(row.status) +
+        "'>" +
+        row.status +
+        "</span></div>";
+      return (
+        "<td class='status-compound-cell'><div class='status-grid'>" +
+        submitRow +
+        renderLabeledStatusTag("审核状态：", row.auditStatus || "-", getAuditStatusClass) +
+        renderLabeledStatusTag("订单状态：", row.orderStatus || "-", getOrderStatusClass) +
+        renderLabeledStatusTag("推送状态：", row.pushStatus || "-", getPushStatusClass) +
+        "</div></td>"
+      );
+    }
+
+    function listingRemoveOrderDisplay(row) {
+      if (row.status === "已提交" && row.removeOrderNo && row.removeOrderNo !== "-") {
+        return row.removeOrderNo;
+      }
+      return "-";
+    }
+
+    function displayFinalPushQtyInList(row) {
+      if (row.status !== "已提交") {
+        return "-";
+      }
+      var f = row.finalPushQty;
+      if (f != null && f !== "" && String(f) !== "-") {
+        return String(f);
+      }
+      if (row.suggestedPushQty != null) {
+        return String(row.suggestedPushQty);
+      }
+      return "-";
     }
 
     function getSelectedRows() {
@@ -1755,6 +2145,31 @@
       return list.filter(function (row) {
         return row.status !== "已提交";
       });
+    }
+
+    function validateSameStoreForBatch(rows) {
+      if (!rows || rows.length <= 1) {
+        return { ok: true };
+      }
+      var seen = {};
+      var names = [];
+      for (var i = 0; i < rows.length; i += 1) {
+        var key = rows[i].storeName || "";
+        if (!Object.prototype.hasOwnProperty.call(seen, key)) {
+          seen[key] = true;
+          names.push(key ? rows[i].storeName : "（未绑定店铺）");
+        }
+      }
+      if (names.length > 1) {
+        return {
+          ok: false,
+          message:
+            "无法批量创建移除订单：所选 listing 必须为同一店铺，当前已选包含多个店铺（" +
+            names.join("、") +
+            "）。请仅保留同一店铺下的记录后再试。"
+        };
+      }
+      return { ok: true };
     }
 
     function formatDateOnly(value) {
@@ -1895,13 +2310,17 @@
         return [
           "<tr>",
           "<td class='select-cell'><input class='row-checkbox' type='checkbox' aria-label='选择记录' " + (state.selectedRowIds[row.id] ? "checked" : "") + (isSubmitted ? " disabled" : "") + " onchange=\"toggleRowSelection('" + row.id + "', this.checked)\" /></td>",
-          "<td class='listing-cell' title='" + row.productName + "'><div class='listing-title ellipsis'>" + row.productName + "</div><div class='listing-meta'><div><span class='meta-label'>MSKU：</span><span class='meta-value'>" + row.msku + "</span></div><div><span class='meta-label'>FNSKU：</span><span class='meta-value'>" + row.fnsku + "</span></div><div><span class='meta-label'>SKU：</span><span class='meta-value'>" + row.systemSku + "</span></div></div></td>",
+          "<td class='listing-cell' title='" + row.productName + "'><div class='listing-title'>" + row.productName + "</div><div class='listing-meta'><div><span class='meta-label'>MSKU：</span><span class='meta-value'>" + row.msku + "</span></div><div><span class='meta-label'>FNSKU：</span><span class='meta-value'>" + row.fnsku + "</span></div><div><span class='meta-label'>SKU：</span><span class='meta-value'>" + row.systemSku + "</span></div><div><span class='meta-label'>移除订单号：</span><span class='meta-value'>" + listingRemoveOrderDisplay(row) + "</span></div></div></td>",
           "<td class='shop-cell'><div class='shop-meta'><div><span class='meta-label'>店铺：</span><span class='meta-value'>" + row.storeName + "</span></div><div><span class='meta-label'>店铺状态：</span><span class='shop-status " + (row.accountStatus === "正常" ? "normal" : "abnormal") + "'>" + row.accountStatus + "</span></div><div><span class='meta-label'>销售人员：</span><span class='meta-value'>" + row.owner + "</span></div></div></td>",
           "<td>" + row.salable + "</td>",
-          "<td><span class='status-tag " + getStatusClass(row.status) + "'>" + row.status + "</span></td>",
+          renderStatusCompoundCell(row),
           "<td class='inventory-cell'><div class='inventory-grid'><div><span class='meta-label'>可售：</span><span class='meta-value'>" + row.sellable + "</span></div><div><span class='meta-label'>不可售：</span><span class='meta-value'>" + row.unsellable + "</span></div></div></td>",
           "<td class='age-cell'><div class='age-grid'><div><span class='meta-label'>0-90天：</span><span class='meta-value'>" + row.age0 + "</span></div><div><span class='meta-label'>91-180天：</span><span class='meta-value'>" + row.age91 + "</span></div><div><span class='meta-label'>181-270天：</span><span class='meta-value'>" + row.age181 + "</span></div><div><span class='meta-label'>271-365天：</span><span class='meta-value'>" + row.age271 + "</span></div><div><span class='meta-label'>365+天：</span><span class='meta-value'>" + row.age365 + "</span></div></div></td>",
-          "<td>" + row.pushQty + "</td>",
+          "<td class='push-qty-cell'><div class='push-qty-grid'><div><span class='meta-label'>建议：</span><span class='meta-value'>" +
+          (row.suggestedPushQty != null ? row.suggestedPushQty : "-") +
+          "</span></div><div><span class='meta-label'>最终：</span><span class='meta-value'>" +
+          displayFinalPushQtyInList(row) +
+          "</span></div></div></td>",
           "<td class='sales-cell'><div class='sales-grid'><div><span class='meta-label'>14天：</span><span class='meta-value'>" + row.sale14 + "</span></div><div><span class='meta-label'>30天：</span><span class='meta-value'>" + row.sale30 + "</span></div></div></td>",
           "<td class='profit-cell'><div class='profit-grid'><div><span class='meta-label'>14天利润：</span><span class='meta-value'>" + row.profit14 + "</span></div><div><span class='meta-label'>30天利润：</span><span class='meta-value'>" + row.profit30 + "</span></div><div><span class='meta-label'>30天退款：</span><span class='meta-value'>" + row.refund30 + "</span></div></div></td>",
           "<td>" + row.rating + "</td>",
@@ -1947,12 +2366,41 @@
         return;
       }
 
+      var storeCheck = validateSameStoreForBatch(selectedRows);
+      if (!storeCheck.ok) {
+        showToast(storeCheck.message, true);
+        return;
+      }
+
+      var uniqMethods = [];
+      var methodSeen = {};
+      selectedRows.forEach(function (r) {
+        var m = r.removeMethod && r.removeMethod !== "-" ? r.removeMethod : "";
+        if (m && !methodSeen[m]) {
+          methodSeen[m] = true;
+          uniqMethods.push(m);
+        }
+      });
+      var batchMethodEl = document.getElementById("batchGlobalRemoveMethod");
+      var methodPanel = document.getElementById("batchMethodPanel");
+      if (batchMethodEl) {
+        batchMethodEl.value = uniqMethods.length === 1 ? uniqMethods[0] : "";
+      }
+      if (methodPanel) {
+        methodPanel.classList.remove("show-error");
+      }
+
       selectedRows.forEach(function (row) {
         state.batchDrafts[row.id] = {
-          method: row.removeMethod && row.removeMethod !== "-" ? row.removeMethod : "",
           reason: row.removeReason && row.removeReason !== "-" ? row.removeReason : "",
           costShare: row.ratio || "",
-          pushQty: row.pushQty || ""
+          pushQty: (function () {
+            var fin = row.finalPushQty;
+            if (fin != null && fin !== "" && String(fin) !== "-") {
+              return String(fin);
+            }
+            return row.suggestedPushQty != null ? String(row.suggestedPushQty) : "";
+          })()
         };
       });
 
@@ -1962,19 +2410,30 @@
 
     function closeBatchSubmit() {
       batchMask.classList.remove("show");
+      var batchMethodEl = document.getElementById("batchGlobalRemoveMethod");
+      var methodPanel = document.getElementById("batchMethodPanel");
+      if (batchMethodEl) {
+        batchMethodEl.value = "";
+      }
+      if (methodPanel) {
+        methodPanel.classList.remove("show-error");
+      }
     }
 
     function renderBatchTable() {
       var selectedRows = getSelectedRows();
-      batchSummary.textContent = "已选择 " + selectedRows.length + " 条数据，可逐条调整审核移除方式和移除/销毁原因后批量创建移除订单。";
+      batchSummary.textContent =
+        "已选择 " +
+        selectedRows.length +
+        " 条数据。请在上方统一选择「移除方式」，并在表格中逐条完善移除/销毁原因等信息后批量创建移除订单。";
 
       if (!selectedRows.length) {
-        batchTableBody.innerHTML = "<tr><td colspan='13'><div class='batch-empty'>当前没有待批量提交的数据</div></td></tr>";
+        batchTableBody.innerHTML = "<tr><td colspan='12'><div class='batch-empty'>当前没有待批量提交的数据</div></td></tr>";
         return;
       }
 
       batchTableBody.innerHTML = selectedRows.map(function (row) {
-        var draft = state.batchDrafts[row.id] || { method: "", reason: "", costShare: "", pushQty: "" };
+        var draft = state.batchDrafts[row.id] || { reason: "", costShare: "", pushQty: "" };
         return [
           "<tr>",
           "<td>" + row.storeName + "</td>",
@@ -1985,13 +2444,13 @@
           "<td>" + row.status + "</td>",
           "<td>" + row.sellable + "</td>",
           "<td>" + row.unsellable + "</td>",
-          "<td><input class='batch-input' value=\"" + draft.pushQty + "\" onchange=\"updateBatchDraft('" + row.id + "', 'pushQty', this.value)\" /></td>",
-          "<td><select class='batch-select' onchange=\"updateBatchDraft('" + row.id + "', 'method', this.value)\">",
-          "<option value=''>请选择</option>",
-          "<option value='Return'" + (draft.method === "Return" ? " selected" : "") + ">Return</option>",
-          "<option value='Disposal'" + (draft.method === "Disposal" ? " selected" : "") + ">Disposal</option>",
-          "<option value='Liquidations'" + (draft.method === "Liquidations" ? " selected" : "") + ">Liquidations</option>",
-          "</select></td>",
+          "<td class='batch-push-qty'><div class='meta-label' style='margin-bottom:4px;font-size:12px;color:#909399'>最终推送数量</div><input class='batch-input' value=\"" +
+          draft.pushQty +
+          "\" placeholder='请输入' onchange=\"updateBatchDraft('" +
+          row.id +
+          "', 'pushQty', this.value)\" /><div class='push-suggest-line'><span class='meta-label'>建议推送数量：</span><span class='meta-value'>" +
+          (row.suggestedPushQty != null ? row.suggestedPushQty : "-") +
+          "</span></div></td>",
           "<td><select class='batch-select' onchange=\"updateBatchDraft('" + row.id + "', 'reason', this.value)\">",
           "<option value=''>请选择</option>",
           "<option value='呆滞产品'" + (draft.reason === "呆滞产品" ? " selected" : "") + ">呆滞产品</option>",
@@ -2015,7 +2474,7 @@
 
     function updateBatchDraft(id, field, value) {
       if (!state.batchDrafts[id]) {
-        state.batchDrafts[id] = { method: "", reason: "", costShare: "", pushQty: "" };
+        state.batchDrafts[id] = { reason: "", costShare: "", pushQty: "" };
       }
       state.batchDrafts[id][field] = value;
     }
@@ -2037,11 +2496,30 @@
         return;
       }
 
+      var storeCheckSubmit = validateSameStoreForBatch(selectedRows);
+      if (!storeCheckSubmit.ok) {
+        showToast(storeCheckSubmit.message, true);
+        return;
+      }
+
+      var globalMethod = document.getElementById("batchGlobalRemoveMethod").value.trim();
+      var methodPanelSubmit = document.getElementById("batchMethodPanel");
+      if (!globalMethod) {
+        if (methodPanelSubmit) {
+          methodPanelSubmit.classList.add("show-error");
+        }
+        showToast("批量创建须先统一选择「移除方式」，所有选中行将使用同一类型。", true);
+        return;
+      }
+      if (methodPanelSubmit) {
+        methodPanelSubmit.classList.remove("show-error");
+      }
+
       for (var i = 0; i < selectedRows.length; i += 1) {
         var row = selectedRows[i];
         var draft = state.batchDrafts[row.id] || {};
-        if (!draft.method || !draft.reason) {
-          showToast("请补全所有批量提交数据的审核信息", true);
+        if (!draft.reason) {
+          showToast("请为每一行选择移除/销毁原因", true);
           return;
         }
       }
@@ -2049,19 +2527,21 @@
       selectedRows.forEach(function (row) {
         var draft = state.batchDrafts[row.id];
         row.status = "已提交";
+        row.removeOrderNo =
+          "FBA-REM-" + (row.site || "XX") + "-" + String(Date.now()).slice(-8) + "-" + String(Math.floor(Math.random() * 900) + 100);
+        row.auditStatus = "审核中";
+        row.orderStatus = "Pending";
+        row.pushStatus = "推送中";
         row.submitTime = new Date().toLocaleString("zh-CN", { hour12: false }).replace(/\//g, "-");
-        row.removeMethod = draft.method;
+        row.removeMethod = globalMethod;
         row.removeReason = draft.reason;
         row.ratio = draft.costShare || row.ratio;
-        logs[row.id] = logs[row.id] || [];
-        logs[row.id].unshift({
-          time: row.submitTime,
-          user: "当前用户",
-          action: "批量提交清库",
-          method: draft.method,
-          reason: draft.reason,
-          result: "提交成功"
-        });
+        var finalPushInput = (draft.pushQty || "").trim();
+        row.finalPushQty =
+          finalPushInput !== ""
+            ? finalPushInput
+            : String(row.suggestedPushQty != null ? row.suggestedPushQty : "");
+        prependOrderLogBundle(row, { submitter: "当前用户" });
         delete state.selectedRowIds[row.id];
         delete state.batchDrafts[row.id];
       });
@@ -2071,9 +2551,82 @@
       showToast("批量提交成功");
     }
 
+    function rowAuditStatusForFilter(row) {
+      return row.auditStatus && row.auditStatus !== "" ? row.auditStatus : "-";
+    }
+
+    function rowOrderStatusForFilter(row) {
+      return row.orderStatus && row.orderStatus !== "" ? row.orderStatus : "-";
+    }
+
+    function rowPushStatusForFilter(row) {
+      return row.pushStatus && row.pushStatus !== "" ? row.pushStatus : "-";
+    }
+
+    var STATUS_VALUE_OPTIONS = {
+      submit: ["待提交", "已提交"],
+      audit: ["已作废", "无匹配流程", "审核中", "全部通过", "部分通过", "全部驳回"],
+      order: ["Pending", "Cancelled", "Completed"],
+      push: ["推送中", "推送成功", "推送失败"]
+    };
+
+    function syncStatusValueSelect(keepValueIfStillValid) {
+      var typeEl = document.getElementById("statusTypeFilter");
+      var valueEl = document.getElementById("statusValueFilter");
+      var type = typeEl.value;
+      var prev = keepValueIfStillValid ? valueEl.value : "";
+
+      valueEl.innerHTML = "";
+      var ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = "请选择";
+      valueEl.appendChild(ph);
+
+      if (!type) {
+        valueEl.disabled = true;
+        valueEl.value = "";
+        return;
+      }
+
+      valueEl.disabled = false;
+      var list = STATUS_VALUE_OPTIONS[type] || [];
+      for (var i = 0; i < list.length; i += 1) {
+        var opt = document.createElement("option");
+        opt.value = list[i];
+        opt.textContent = list[i];
+        valueEl.appendChild(opt);
+      }
+
+      if (prev && list.indexOf(prev) > -1) {
+        valueEl.value = prev;
+      } else {
+        valueEl.value = "";
+      }
+    }
+
+    function statusCompoundMatch(row) {
+      var statusType = document.getElementById("statusTypeFilter").value.trim();
+      var statusValue = document.getElementById("statusValueFilter").value.trim();
+      if (!statusType || !statusValue) {
+        return true;
+      }
+      if (statusType === "submit") {
+        return row.status === statusValue;
+      }
+      if (statusType === "audit") {
+        return rowAuditStatusForFilter(row) === statusValue;
+      }
+      if (statusType === "order") {
+        return rowOrderStatusForFilter(row) === statusValue;
+      }
+      if (statusType === "push") {
+        return rowPushStatusForFilter(row) === statusValue;
+      }
+      return true;
+    }
+
     function applyFilters() {
       var store = state.selectedStore.trim();
-      var status = document.getElementById("statusFilter").value.trim();
       var owner = state.selectedOwner.trim().toLowerCase();
       var keyword = document.getElementById("keywordFilter").value.trim().toLowerCase();
       var timeType = document.getElementById("timeTypeFilter").value.trim();
@@ -2095,7 +2648,7 @@
         }
 
         return (!store || row.storeName === store) &&
-          (!status || row.status === status) &&
+          statusCompoundMatch(row) &&
           (!owner || row.owner.toLowerCase().indexOf(owner) > -1) &&
           keywordMatch &&
           timeMatch;
@@ -2108,7 +2661,8 @@
     function resetFilters() {
       selectStore("");
       selectOwner("");
-      document.getElementById("statusFilter").value = "";
+      document.getElementById("statusTypeFilter").value = "";
+      syncStatusValueSelect(false);
       document.getElementById("keywordFilter").value = "";
       document.getElementById("timeTypeFilter").value = "";
       document.getElementById("timeStartDateFilter").value = "";
@@ -2138,7 +2692,14 @@
       removeMethod.value = row.removeMethod && row.removeMethod !== "-" ? row.removeMethod : "";
       removeReason.value = row.removeReason && row.removeReason !== "-" ? row.removeReason : "";
       costShareInput.value = row.ratio || "";
-      pushQtyInput.value = row.pushQty || "";
+      document.getElementById("pushQtySuggestHint").textContent =
+        "建议推送数量：" + (row.suggestedPushQty != null ? row.suggestedPushQty : "-");
+      var finDraft =
+        row.finalPushQty != null && row.finalPushQty !== "" && String(row.finalPushQty) !== "-"
+          ? String(row.finalPushQty)
+          : "";
+      pushQtyInput.value =
+        finDraft || (row.suggestedPushQty != null ? String(row.suggestedPushQty) : "");
       methodItem.classList.remove("error");
       reasonItem.classList.remove("error");
       auditMask.classList.add("show");
@@ -2153,34 +2714,36 @@
       var rowLogs = logs[id] || [];
       if (!row) return;
 
-      logOverview.innerHTML = "当前记录：<strong>" + row.msku + "</strong>，产品：<strong>" + row.productName + "</strong>。日志按时间倒序展示，仅支持查看，不支持修改。";
+      logOverview.innerHTML =
+        "当前记录：<strong>" +
+        row.msku +
+        "</strong>，产品：<strong>" +
+        row.productName +
+        "</strong>。以下为<strong>操作日志</strong>，按时间倒序；<strong>仅记录</strong>与移除订单相关的「提交订单」「审核状态」「推送状态」「订单状态」节点，其它操作不写入日志。";
 
       if (!rowLogs.length) {
-        logTimeline.innerHTML = "<div class='empty'>暂无日志记录</div>";
+        logTimeline.innerHTML =
+          "<div class='empty'>暂无操作日志。提交移除订单后，将在此记录提交订单及审核/推送/订单状态类变更。</div>";
       } else {
         logTimeline.innerHTML = rowLogs.map(function (item) {
           return [
             "<div class='timeline-item'>",
             "<div class='timeline-head'>",
-            "<div class='timeline-title'>" + item.action + "</div>",
+            "<div class='timeline-title'>" + item.logType + "</div>",
             "<div class='timeline-meta'>" + item.time + "</div>",
             "</div>",
-            "<div class='timeline-grid'>",
-            "<div><span>操作人：</span>" + item.user + "</div>",
-            "<div><span>提交结果：</span>" + item.result + "</div>",
-            "<div><span>审核移除方式：</span>" + item.method + "</div>",
-            "<div><span>移除/销毁原因：</span>" + item.reason + "</div>",
-            "</div>",
+            "<div class='timeline-log-user'>操作人：" + item.user + "</div>",
+            "<div class='timeline-log-detail'>" + item.content + "</div>",
             "</div>"
           ].join("");
         }).join("");
       }
 
-      logDrawerMask.classList.add("show");
+      orderLogMask.classList.add("show");
     }
 
     function closeLog() {
-      logDrawerMask.classList.remove("show");
+      orderLogMask.classList.remove("show");
     }
 
     function showToast(message, failed) {
@@ -2226,20 +2789,21 @@
       }
 
       row.status = "已提交";
+      row.removeOrderNo =
+        "FBA-REM-" + (row.site || "XX") + "-" + String(Date.now()).slice(-8) + "-" + String(Math.floor(Math.random() * 900) + 100);
+      row.auditStatus = "审核中";
+      row.orderStatus = "Pending";
+      row.pushStatus = "推送中";
       row.submitTime = new Date().toLocaleString("zh-CN", { hour12: false }).replace(/\//g, "-");
       row.removeMethod = removeMethod.value;
       row.removeReason = removeReason.value;
       row.ratio = costShareInput.value || row.ratio;
-      row.pushQty = pushQtyInput.value || row.pushQty;
-      logs[row.id] = logs[row.id] || [];
-      logs[row.id].unshift({
-        time: row.submitTime,
-        user: "当前用户",
-        action: "提交清库",
-        method: removeMethod.value,
-        reason: removeReason.value,
-        result: "提交成功"
-      });
+      var finalPushInputSingle = pushQtyInput.value.trim();
+      row.finalPushQty =
+        finalPushInputSingle !== ""
+          ? finalPushInputSingle
+          : String(row.suggestedPushQty != null ? row.suggestedPushQty : "");
+      prependOrderLogBundle(row, { submitter: "当前用户" });
       delete state.selectedRowIds[row.id];
       delete state.batchDrafts[row.id];
 
@@ -2251,6 +2815,9 @@
 
     document.getElementById("searchBtn").addEventListener("click", applyFilters);
     document.getElementById("resetBtn").addEventListener("click", resetFilters);
+    document.getElementById("statusTypeFilter").addEventListener("change", function () {
+      syncStatusValueSelect(false);
+    });
     document.getElementById("batchSubmitBtn").addEventListener("click", openBatchSubmit);
     storeFilterTrigger.addEventListener("click", function (event) {
       event.stopPropagation();
@@ -2312,7 +2879,13 @@
     document.getElementById("closeBatchBtn").addEventListener("click", closeBatchSubmit);
     document.getElementById("cancelBatchBtn").addEventListener("click", closeBatchSubmit);
     document.getElementById("confirmBatchBtn").addEventListener("click", submitBatchAudit);
-    document.getElementById("closeDrawerBtn").addEventListener("click", closeLog);
+    document.getElementById("batchGlobalRemoveMethod").addEventListener("change", function () {
+      var panel = document.getElementById("batchMethodPanel");
+      if (panel) {
+        panel.classList.remove("show-error");
+      }
+    });
+    document.getElementById("closeOrderLogBtn").addEventListener("click", closeLog);
 
     auditMask.addEventListener("click", function (event) {
       if (event.target === auditMask) {
@@ -2326,8 +2899,8 @@
       }
     });
 
-    logDrawerMask.addEventListener("click", function (event) {
-      if (event.target === logDrawerMask) {
+    orderLogMask.addEventListener("click", function (event) {
+      if (event.target === orderLogMask) {
         closeLog();
       }
     });
@@ -2343,6 +2916,7 @@
 
     updateStoreTrigger();
     updateOwnerTrigger();
+    syncStatusValueSelect(false);
     renderTable();
   </script>
 </body>
